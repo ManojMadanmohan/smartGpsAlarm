@@ -11,7 +11,7 @@ public interface ILocationFeature
 {
     public Location getLastLocation();
 
-    public void addLocationListener(int freqSeconds, int priority);
+    public void addLocationListener(int freqSeconds, int priority, LocationListener listener);
 
     public void removeLocationListener(LocationListener listener);
 
