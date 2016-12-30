@@ -24,6 +24,7 @@ public class LocationFeature implements ILocationFeature
     private GoogleApiClient _googleApiClient;
 
     private List<DefaultLocationRequest> _pendingLocationRequests;
+    private List<DefaultGeoFenceRequest> _pendingGeofencingRequests;
     private PendingIntent _geofencingIntent;
 
     private static LocationFeature _instance;
@@ -35,34 +36,11 @@ public class LocationFeature implements ILocationFeature
     {
         _googleApiClient = new GoogleApiClient.Builder(context).
                 addApi(LocationServices.API)
-                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks()
-                {
-                    @Override
-                    public void onConnected(@Nullable Bundle bundle)
-                    {
-                        for(DefaultLocationRequest request: _pendingLocationRequests)
-                        {
-                            addLocationListener(request.getFreq(), request.getPriority(), request.getListener());
-                        }
-                        _pendingLocationRequests.clear();
-                    }
-
-                    @Override
-                    public void onConnectionSuspended(int i)
-                    {
-
-                    }
-                })
-                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener()
-                {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
-                    {
-
-                    }
-                })
+                .addConnectionCallbacks(getGApiConnectionCallback())
+                .addOnConnectionFailedListener(getGApiFailedListener())
                 .build();
         _pendingLocationRequests = new ArrayList<>();
+        _pendingGeofencingRequests = new ArrayList<>();
     }
 
     public static LocationFeature getInstance(Context context)
@@ -120,14 +98,34 @@ public class LocationFeature implements ILocationFeature
     @Override
     public void addGeoFence(DefaultGeoFenceRequest request)
     {
-        GeofencingRequest geofencingRequest = getGeofencingRequest(request);
-        LocationServices.GeofencingApi.addGeofences(_googleApiClient, geofencingRequest, getGeofencePendingIntent());
+        if(_googleApiClient.isConnected())
+        {
+            GeofencingRequest geofencingRequest = getGeofencingRequest(request);
+            LocationServices.GeofencingApi.addGeofences(_googleApiClient, geofencingRequest, getGeofencePendingIntent());
+        } else
+        {
+            _pendingGeofencingRequests.add(request);
+        }
     }
 
     @Override
     public void removeGeoFence(String geofenceRequestId)
     {
-        LocationServices.GeofencingApi.removeGeofences(_googleApiClient, Arrays.asList(geofenceRequestId));
+        if(_googleApiClient.isConnected())
+        {
+            LocationServices.GeofencingApi.removeGeofences(_googleApiClient, Arrays.asList(geofenceRequestId));
+        } else
+        {
+            Iterator<DefaultGeoFenceRequest> iterator = _pendingGeofencingRequests.iterator();
+            while(iterator.hasNext())
+            {
+                DefaultGeoFenceRequest request = iterator.next();
+                if(request.getRequestId().equals(geofenceRequestId))
+                {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     private class DefaultLocationRequest
@@ -186,4 +184,46 @@ public class LocationFeature implements ILocationFeature
                 FLAG_UPDATE_CURRENT);
         return getGeofencePendingIntent();
     }
+
+    @NonNull
+    private GoogleApiClient.OnConnectionFailedListener getGApiFailedListener()
+    {
+        return new GoogleApiClient.OnConnectionFailedListener()
+        {
+            @Override
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
+            {
+
+            }
+        };
+    }
+
+    @NonNull
+    private GoogleApiClient.ConnectionCallbacks getGApiConnectionCallback()
+    {
+        return new GoogleApiClient.ConnectionCallbacks()
+        {
+            @Override
+            public void onConnected(@Nullable Bundle bundle)
+            {
+                for(DefaultLocationRequest request: _pendingLocationRequests)
+                {
+                    addLocationListener(request.getFreq(), request.getPriority(), request.getListener());
+                }
+                _pendingLocationRequests.clear();
+                for(DefaultGeoFenceRequest request: _pendingGeofencingRequests)
+                {
+                    addGeoFence(request);
+                }
+                _pendingGeofencingRequests.clear();
+            }
+
+            @Override
+            public void onConnectionSuspended(int i)
+            {
+
+            }
+        };
+    }
+
 }
