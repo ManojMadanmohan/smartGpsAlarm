@@ -25,7 +25,7 @@ public class DefaultGeoFenceRequest
         return _latLng;
     }
 
-    public String getKey()
+    public String getRequestId()
     {
         return String.valueOf(hashCode());
     }

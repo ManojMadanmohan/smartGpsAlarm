@@ -17,5 +17,5 @@ public interface ILocationFeature
 
     public void addGeoFence(DefaultGeoFenceRequest request);
 
-    public void removeGeoFence(DefaultGeoFenceRequest request);
+    public void removeGeoFence(String requestId);
 }

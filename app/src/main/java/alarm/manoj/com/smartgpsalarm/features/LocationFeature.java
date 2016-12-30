@@ -2,18 +2,20 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.interfaces.ILocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
+import alarm.manoj.com.smartgpsalarm.services.GeoFenceIntentService;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,10 +24,14 @@ public class LocationFeature implements ILocationFeature
     private GoogleApiClient _googleApiClient;
 
     private List<DefaultLocationRequest> _pendingLocationRequests;
+    private PendingIntent _geofencingIntent;
+
+    private static LocationFeature _instance;
 
     private static final long FASTEST_LOCATION_INTERVAL = 1000;
+    private static final long GEOFENCE_EXPIRY = 6 * 60 * 60 * 1000;
 
-    public LocationFeature(Context context)
+    private LocationFeature(Context context)
     {
         _googleApiClient = new GoogleApiClient.Builder(context).
                 addApi(LocationServices.API)
@@ -57,6 +63,15 @@ public class LocationFeature implements ILocationFeature
                 })
                 .build();
         _pendingLocationRequests = new ArrayList<>();
+    }
+
+    public static LocationFeature getInstance(Context context)
+    {
+        if(_instance == null)
+        {
+            _instance = new LocationFeature(context);
+        }
+        return _instance;
     }
 
     @Override
@@ -105,13 +120,14 @@ public class LocationFeature implements ILocationFeature
     @Override
     public void addGeoFence(DefaultGeoFenceRequest request)
     {
-        //TODO
+        GeofencingRequest geofencingRequest = getGeofencingRequest(request);
+        LocationServices.GeofencingApi.addGeofences(_googleApiClient, geofencingRequest, getGeofencePendingIntent());
     }
 
     @Override
-    public void removeGeoFence(DefaultGeoFenceRequest request)
+    public void removeGeoFence(String geofenceRequestId)
     {
-        //TODO
+        LocationServices.GeofencingApi.removeGeofences(_googleApiClient, Arrays.asList(geofenceRequestId));
     }
 
     private class DefaultLocationRequest
@@ -141,5 +157,33 @@ public class LocationFeature implements ILocationFeature
         {
             return priority;
         }
+    }
+
+    private GeofencingRequest getGeofencingRequest(DefaultGeoFenceRequest request)
+    {
+        Geofence geofence = new Geofence.Builder().setCircularRegion(request.getLatLng().latitude, request.getLatLng().longitude, request.getRadiusMeters())
+                .setRequestId(request.getRequestId())
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setExpirationDuration(GEOFENCE_EXPIRY)
+                .build();
+        return new GeofencingRequest.Builder()
+                .addGeofence(geofence)
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .build();
+    }
+
+    private PendingIntent getGeofencePendingIntent()
+    {
+        // Reuse the PendingIntent if we already have it.
+        if (_geofencingIntent != null)
+        {
+            return _geofencingIntent;
+        }
+        Intent intent = new Intent(_googleApiClient.getContext(), GeoFenceIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        _geofencingIntent = PendingIntent.getService(_googleApiClient.getContext(), 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+        return getGeofencePendingIntent();
     }
 }
