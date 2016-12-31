@@ -2,10 +2,12 @@ package alarm.manoj.com.smartgpsalarm.ui.activities;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
+import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Toast;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -19,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
     private GoogleMap _googleMap;
+    private static final String ADD_ALARM_TAG = "add_alarm_tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -27,6 +30,16 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         setContentView(R.layout.activity_gpsalarm);
         ((MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment)).getMapAsync(this);
         setActionBar();
+        findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                LatLng alarmLoc = getMapCenter();
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "");
+                dialog.show(getFragmentManager(), ADD_ALARM_TAG);
+            }
+        });
     }
 
     private void setActionBar()
