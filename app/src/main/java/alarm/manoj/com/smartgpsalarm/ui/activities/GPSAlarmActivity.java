@@ -56,6 +56,11 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         zoomToCurrentLocation();
     }
 
+    private LatLng getMapCenter()
+    {
+        return _googleMap.getCameraPosition().target;
+    }
+
     private void zoomToCurrentLocation()
     {
         LocationFeature.getInstance(this).addLocationListener(1000, LocationRequest.PRIORITY_HIGH_ACCURACY, getZoomToCurrentLocationListener());
