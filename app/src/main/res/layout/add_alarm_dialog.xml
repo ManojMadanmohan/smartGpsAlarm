@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/activity_horizontal_margin"
+        >
+    <TextView
+            android:id="@+id/add_dialog_title"
+            android:layout_centerHorizontal="true"
+            android:text="Set Alarm"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    <TextView
+            android:layout_marginTop="8dp"
+            android:id="@+id/add_dialog_lat_lng"
+            android:layout_below="@id/add_dialog_title"
+            android:layout_centerHorizontal="true"
+            android:text="17.8444, 24.67786"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <EditText
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+            android:id="@+id/add_dialog_title_input"
+            android:layout_below="@id/add_dialog_lat_lng"/>
+
+    <TimePicker
+            android:id="@+id/add_dialog_time_picker"
+            android:layout_below="@id/add_dialog_title_input"
+            android:layout_width="match_parent"
+            android:timePickerMode="spinner"
+            android:layout_height="wrap_content"/>
+
+    <Button
+            android:id="@+id/add_alarm_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/add_dialog_time_picker"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:elevation="8dp"
+            android:background="@color/colorPrimary"
+            android:text="SET"/>
+
+</RelativeLayout>
