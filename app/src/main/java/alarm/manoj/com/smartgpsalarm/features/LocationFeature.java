@@ -39,6 +39,7 @@ public class LocationFeature implements ILocationFeature
                 .addConnectionCallbacks(getGApiConnectionCallback())
                 .addOnConnectionFailedListener(getGApiFailedListener())
                 .build();
+        _googleApiClient.connect();
         _pendingLocationRequests = new ArrayList<>();
         _pendingGeofencingRequests = new ArrayList<>();
     }
@@ -60,18 +61,18 @@ public class LocationFeature implements ILocationFeature
     }
 
     @Override
-    public void addLocationListener(int freqSeconds, int priority, LocationListener listener)
+    public void addLocationListener(int freqMillis, int priority, LocationListener listener)
     {
         if(_googleApiClient.isConnected())
         {
             LocationRequest locationRequest = new LocationRequest()
-                    .setInterval(freqSeconds)
+                    .setInterval(freqMillis)
                     .setPriority(priority)
                     .setFastestInterval(FASTEST_LOCATION_INTERVAL);
             LocationServices.FusedLocationApi.requestLocationUpdates(_googleApiClient, locationRequest, listener);
         } else
         {
-            _pendingLocationRequests.add(new DefaultLocationRequest(freqSeconds, listener, priority));
+            _pendingLocationRequests.add(new DefaultLocationRequest(freqMillis, listener, priority));
         }
     }
 
