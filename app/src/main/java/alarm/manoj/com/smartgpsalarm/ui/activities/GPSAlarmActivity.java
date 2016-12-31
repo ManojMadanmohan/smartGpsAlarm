@@ -67,7 +67,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)             // Sets the center of the map to Mountain View
                     .zoom(17)                   // Sets the zoom
-                    .bearing(90)                // Sets the orientation of the camera to east
                     .build();                   // Creates a CameraPosition from the builder
         _googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
