@@ -15,7 +15,10 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCdoN6UnEeHvx2GPYtVdJyb2rpIP38v9qM"/>
 
-        <activity android:name=".ui.activities.GPSAlarmActivity">
+
+        <activity
+                android:name=".ui.activities.GPSAlarmActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
