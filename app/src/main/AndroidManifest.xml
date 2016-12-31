@@ -17,6 +17,7 @@
 
 
         <activity
+                android:screenOrientation="portrait"
                 android:name=".ui.activities.GPSAlarmActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
