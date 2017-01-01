@@ -37,9 +37,23 @@ public class DefaultGeoFenceRequest
     }
 
     @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DefaultGeoFenceRequest request = (DefaultGeoFenceRequest) o;
+
+        if (_radiusMeters != request._radiusMeters) return false;
+        return _latLng.equals(request._latLng);
+    }
+
+    @Override
     public int hashCode()
     {
-        return (int)Math.round(_latLng.latitude*LOCATION_MULTIPLIER + _latLng.longitude*LOCATION_MULTIPLIER + _radiusMeters);
+        int result = _latLng.hashCode();
+        result = 31 * result + _radiusMeters;
+        return result;
     }
 
     public static String toJson(DefaultGeoFenceRequest defaultGeoFenceRequest) throws JSONException
