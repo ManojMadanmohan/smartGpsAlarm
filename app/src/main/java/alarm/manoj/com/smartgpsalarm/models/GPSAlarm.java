@@ -7,14 +7,22 @@ public class GPSAlarm
 {
     private DefaultGeoFenceRequest _geofenceRequest;
     private long _alarmTimeAbsMillis;
+    private boolean _active;
+
+    //This is the time the alarm was set
+    private long _timestamp;
 
     private static final String KEY_GEOFENCE_REQUEST = "geofence_request";
     private static final String KEY_ALARM_TIME = "alarm_time";
+    private static final String KEY_TIMESTAMP = "timestamp";
+    private static final String KEY_ACTIVE = "active";
 
-    public GPSAlarm(long _alarmTimeAbsMillis, DefaultGeoFenceRequest _geofenceRequest)
+    public GPSAlarm(long _alarmTimeAbsMillis, DefaultGeoFenceRequest _geofenceRequest, long timestamp)
     {
         this._alarmTimeAbsMillis = _alarmTimeAbsMillis;
         this._geofenceRequest = _geofenceRequest;
+        this._timestamp = timestamp;
+        this._active = false;
     }
 
     public long getAlarmTimeAbsMillis()
@@ -25,6 +33,21 @@ public class GPSAlarm
     public DefaultGeoFenceRequest getGeofenceRequest()
     {
         return _geofenceRequest;
+    }
+
+    public long getTimeStamp()
+    {
+        return _timestamp;
+    }
+
+    public boolean isActive()
+    {
+        return _active;
+    }
+
+    public void setActive(boolean active)
+    {
+        _active = active;
     }
 
     public String getAlarmId()
@@ -58,6 +81,8 @@ public class GPSAlarm
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(KEY_ALARM_TIME, alarm.getAlarmTimeAbsMillis());
         jsonObject.put(KEY_GEOFENCE_REQUEST, DefaultGeoFenceRequest.toJson(alarm.getGeofenceRequest()));
+        jsonObject.put(KEY_TIMESTAMP, alarm.getTimeStamp());
+        jsonObject.put(KEY_ACTIVE, alarm.isActive());
         return jsonObject.toString();
     }
 
@@ -66,6 +91,10 @@ public class GPSAlarm
         JSONObject jsonObject = new JSONObject(json);
         DefaultGeoFenceRequest request = DefaultGeoFenceRequest.fromJson(jsonObject.getString(KEY_GEOFENCE_REQUEST));
         long alarmTime = jsonObject.getLong(KEY_ALARM_TIME);
-        return new GPSAlarm(alarmTime, request);
+        long timestamp = jsonObject.getLong(KEY_TIMESTAMP);
+        boolean active = jsonObject.getBoolean(KEY_ACTIVE);
+        GPSAlarm alarm = new GPSAlarm(alarmTime, request, timestamp);
+        alarm.setActive(active);
+        return alarm;
     }
 }
