@@ -36,7 +36,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             public void onClick(View view)
             {
                 LatLng alarmLoc = getMapCenter();
-                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "");
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "", 500);
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         });

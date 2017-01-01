@@ -21,12 +21,14 @@ public class AddAlarmDialog extends DialogFragment
     private static final String KEY_LAT = "lat";
     private static final String KEY_LON = "lon";
     private static final String KEY_TITLE = "title";
+    private static final String KEY_RADIUS = "title";
 
     private LatLng _latlng;
+    private int _radiusM;
 
     @BindView(R.id.add_alarm_button)
     Button _button;
-    @BindView(R.id.add_dialog_lat_lng)
+    @BindView(R.id.add_dialog_geofence_info)
     TextView _latlngView;
     @BindView(R.id.add_dialog_time_picker)
     TimePicker _timePicker;
@@ -38,12 +40,13 @@ public class AddAlarmDialog extends DialogFragment
 
     }
 
-    public static AddAlarmDialog newInstance(LatLng latLng, String title)
+    public static AddAlarmDialog newInstance(LatLng latLng, String title, int radiusM)
     {
         Bundle bundle = new Bundle();
         bundle.putDouble(KEY_LAT, latLng.latitude);
         bundle.putDouble(KEY_LON, latLng.longitude);
         bundle.putString(KEY_TITLE, title);
+        bundle.putInt(KEY_RADIUS, radiusM);
         AddAlarmDialog alarmDialog = new AddAlarmDialog();
         alarmDialog.setArguments(bundle);
         return alarmDialog;
@@ -71,7 +74,8 @@ public class AddAlarmDialog extends DialogFragment
         double lat = getArguments().getDouble(KEY_LAT);
         double lon = getArguments().getDouble(KEY_LON);
         _latlng = new LatLng(lat, lon);
-        _latlngView.setText(format(_latlng));
+        _radiusM = getArguments().getInt(KEY_RADIUS);
+        _latlngView.setText(formatLatLng(_latlng) + ", "+ formatRadius(_radiusM));
         String title = getArguments().getString(KEY_TITLE);
         _titleInput.setText(title);
         _button.setOnClickListener(new View.OnClickListener()
@@ -84,7 +88,7 @@ public class AddAlarmDialog extends DialogFragment
         });
     }
 
-    private String format(LatLng latLng)
+    private String formatLatLng(LatLng latLng)
     {
         String formatted = String.format("%.4f",Math.abs(latLng.latitude))+getDegreeChar();
         if(latLng.latitude > 0)
@@ -103,6 +107,11 @@ public class AddAlarmDialog extends DialogFragment
             formatted += "E";
         }
         return formatted;
+    }
+
+    private String formatRadius(int radiusM)
+    {
+        return String.format("%d m",radiusM);
     }
 
     private String getDegreeChar()
