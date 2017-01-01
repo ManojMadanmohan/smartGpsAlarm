@@ -15,6 +15,9 @@ public interface IAlarmFeature
     public void unsetAlarm(String alarmId);
 
     public List<GPSAlarm> getAlarmHistory();
-
-    public void removeAlarmFromHistory(String alarmId);
+    /*
+    Returns whether alarm was removed successfully.
+    Alarm will not be removed, if the alarm is currently set
+     */
+    public boolean removeAlarmFromHistory(String alarmId);
 }
