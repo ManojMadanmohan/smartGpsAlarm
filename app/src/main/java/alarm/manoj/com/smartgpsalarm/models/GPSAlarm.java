@@ -27,6 +27,32 @@ public class GPSAlarm
         return _geofenceRequest;
     }
 
+    public String getAlarmId()
+    {
+        return String.valueOf(hashCode());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GPSAlarm gpsAlarm = (GPSAlarm) o;
+
+        if (_alarmTimeAbsMillis != gpsAlarm._alarmTimeAbsMillis) return false;
+        return _geofenceRequest.equals(gpsAlarm._geofenceRequest);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = _geofenceRequest.hashCode();
+        result = 31 * result + (int) (_alarmTimeAbsMillis ^ (_alarmTimeAbsMillis >>> 32));
+        return result;
+    }
+
     public static String toJson(GPSAlarm alarm) throws JSONException
     {
         JSONObject jsonObject = new JSONObject();
