@@ -9,6 +9,11 @@ import com.google.android.gms.location.GeofencingEvent;
 
 public class GeoFenceIntentService extends IntentService
 {
+    public GeoFenceIntentService()
+    {
+        this("Default");
+    }
+
     public GeoFenceIntentService(String name)
     {
         super(name);
