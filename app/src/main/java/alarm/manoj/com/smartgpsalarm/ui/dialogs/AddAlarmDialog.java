@@ -124,7 +124,7 @@ public class AddAlarmDialog extends DialogFragment
     {
         long timestamp = System.currentTimeMillis();
         DefaultGeoFenceRequest geoFenceRequest = new DefaultGeoFenceRequest(_latlng, _radiusM);
-        long alarmTime = getTimeStampFrommPicker();
+        long alarmTime = getTimeStampFromPicker();
         String title = _titleInput.getText().toString();
         AlarmFeature.getInstance(getActivity()).setAlarm(new GPSAlarm(alarmTime, geoFenceRequest, timestamp, title));
         Toast.makeText(getActivity(), "Alarm set!", Toast.LENGTH_LONG).show();
@@ -132,7 +132,7 @@ public class AddAlarmDialog extends DialogFragment
         //TODO: fire event
     }
 
-    private long getTimeStampFrommPicker()
+    private long getTimeStampFromPicker()
     {
         long seconds_timepicker = _timePicker.getCurrentHour()*3600 + _timePicker.getCurrentMinute() * 60;
         long millis_startOfDay = Utils.getStartOfDay().getTime();
