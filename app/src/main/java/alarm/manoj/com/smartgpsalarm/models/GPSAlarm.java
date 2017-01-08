@@ -8,6 +8,7 @@ public class GPSAlarm
     private DefaultGeoFenceRequest _geofenceRequest;
     private long _alarmTimeAbsMillis;
     private boolean _active;
+    private String _title;
 
     //This is the time the alarm was set
     private long _timestamp;
@@ -16,13 +17,15 @@ public class GPSAlarm
     private static final String KEY_ALARM_TIME = "alarm_time";
     private static final String KEY_TIMESTAMP = "timestamp";
     private static final String KEY_ACTIVE = "active";
+    private static final String KEY_TITLE = "title";
 
-    public GPSAlarm(long _alarmTimeAbsMillis, DefaultGeoFenceRequest _geofenceRequest, long timestamp)
+    public GPSAlarm(long _alarmTimeAbsMillis, DefaultGeoFenceRequest _geofenceRequest, long timestamp, String title)
     {
         this._alarmTimeAbsMillis = _alarmTimeAbsMillis;
         this._geofenceRequest = _geofenceRequest;
         this._timestamp = timestamp;
         this._active = false;
+        this._title = title;
     }
 
     public long getAlarmTimeAbsMillis()
@@ -55,6 +58,11 @@ public class GPSAlarm
         return String.valueOf(hashCode());
     }
 
+    public String getTitle()
+    {
+        return _title;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -83,6 +91,7 @@ public class GPSAlarm
         jsonObject.put(KEY_GEOFENCE_REQUEST, DefaultGeoFenceRequest.toJson(alarm.getGeofenceRequest()));
         jsonObject.put(KEY_TIMESTAMP, alarm.getTimeStamp());
         jsonObject.put(KEY_ACTIVE, alarm.isActive());
+        jsonObject.put(KEY_TITLE, alarm.getTitle());
         return jsonObject.toString();
     }
 
@@ -93,7 +102,8 @@ public class GPSAlarm
         long alarmTime = jsonObject.getLong(KEY_ALARM_TIME);
         long timestamp = jsonObject.getLong(KEY_TIMESTAMP);
         boolean active = jsonObject.getBoolean(KEY_ACTIVE);
-        GPSAlarm alarm = new GPSAlarm(alarmTime, request, timestamp);
+        String title = jsonObject.getString(KEY_TITLE);
+        GPSAlarm alarm = new GPSAlarm(alarmTime, request, timestamp, title);
         alarm.setActive(active);
         return alarm;
     }
