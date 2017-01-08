@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.widget.Toast;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import org.greenrobot.eventbus.EventBus;
 
 public class GeoFenceIntentService extends IntentService
 {
@@ -30,10 +31,7 @@ public class GeoFenceIntentService extends IntentService
         } else
         {
             Toast.makeText(this, "got geofence alarm! Yay :)", Toast.LENGTH_SHORT).show();
-            for(Geofence geofence: geofencingEvent.getTriggeringGeofences())
-            {
-                LocationFeature.getInstance(this).removeGeoFence(geofence.getRequestId());
-            }
+            EventBus.getDefault().post(geofencingEvent);
         }
     }
 }
