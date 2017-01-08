@@ -162,7 +162,8 @@ public class LocationFeature implements ILocationFeature
     {
         Geofence geofence = new Geofence.Builder().setCircularRegion(request.getLatLng().latitude, request.getLatLng().longitude, request.getRadiusMeters())
                 .setRequestId(request.getRequestId())
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setLoiteringDelay(1)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT | Geofence.GEOFENCE_TRANSITION_DWELL)
                 .setExpirationDuration(GEOFENCE_EXPIRY)
                 .build();
         return new GeofencingRequest.Builder()
