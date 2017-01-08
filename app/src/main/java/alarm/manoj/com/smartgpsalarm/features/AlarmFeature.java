@@ -2,11 +2,16 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.interfaces.IAlarmFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
+import alarm.manoj.com.smartgpsalarm.recievers.AlarmReciever;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.widget.Toast;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
@@ -47,6 +52,14 @@ public class AlarmFeature implements IAlarmFeature
     {
         //TODO
         LocationFeature.getInstance(_context).addGeoFence(alarm.getGeofenceRequest());
+        AlarmManager manager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+        {
+            manager.set(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), getPendingIntent(alarm));
+        } else
+        {
+            manager.setExact(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), getPendingIntent(alarm));
+        }
         alarm.setActive(true);
         addAlarmToHistory(alarm);
         return true;
@@ -169,5 +182,12 @@ public class AlarmFeature implements IAlarmFeature
         {
             Toast.makeText(_context, "IO EXP",Toast.LENGTH_LONG).show();
         }
+    }
+
+    public PendingIntent getPendingIntent(GPSAlarm alarm)
+    {
+        Intent intent = new Intent(_context, AlarmReciever.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(_context, alarm.hashCode(), intent, 0);
+        return pendingIntent;
     }
 }
