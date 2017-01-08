@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.*;
@@ -114,6 +115,8 @@ public class LocationFeature implements ILocationFeature
     {
         if(_googleApiClient.isConnected())
         {
+
+            Toast.makeText(_googleApiClient.getContext(), "GEOFENCE REMOVED!!", Toast.LENGTH_LONG).show();
             LocationServices.GeofencingApi.removeGeofences(_googleApiClient, Arrays.asList(geofenceRequestId));
         } else
         {
