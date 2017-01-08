@@ -9,12 +9,23 @@ import java.util.List;
 
 public class AlarmFeature implements IAlarmFeature
 {
+    private static AlarmFeature _instance;
+
     private static final String KEY_FILE_SYSTEM = "alarm_store";
     private FileSystem _fileSystem;
 
-    public AlarmFeature(Context context)
+    private AlarmFeature(Context context)
     {
         _fileSystem = new FileSystem(context, KEY_FILE_SYSTEM);
+    }
+
+    public static AlarmFeature getInstance(Context context)
+    {
+        if(_instance == null)
+        {
+            _instance = new AlarmFeature(context);
+        }
+        return _instance;
     }
 
     @Override
