@@ -1,6 +1,10 @@
 package alarm.manoj.com.smartgpsalarm.ui.dialogs;
 
 import alarm.manoj.com.smartgpsalarm.R;
+import alarm.manoj.com.smartgpsalarm.Utils;
+import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
+import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
+import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,10 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.google.android.gms.maps.model.LatLng;
@@ -121,6 +122,27 @@ public class AddAlarmDialog extends DialogFragment
 
     private void addAlarm()
     {
+        long timestamp = System.currentTimeMillis();
+        DefaultGeoFenceRequest geoFenceRequest = new DefaultGeoFenceRequest(_latlng, _radiusM);
+        long alarmTime = getTimeStampFrommPicker();
+        String title = _titleInput.getText().toString();
+        AlarmFeature.getInstance(getActivity()).setAlarm(new GPSAlarm(alarmTime, geoFenceRequest, timestamp, title));
+        Toast.makeText(getActivity(), "Alarm set!", Toast.LENGTH_LONG).show();
+        getDialog().dismiss();
+        //TODO: fire event
+    }
 
+    private long getTimeStampFrommPicker()
+    {
+        long seconds_timepicker = _timePicker.getCurrentHour()*3600 + _timePicker.getCurrentMinute() * 60;
+        long millis_startOfDay = Utils.getStartOfDay().getTime();
+
+        long timeStamp = seconds_timepicker * 1000 + millis_startOfDay;
+        if(timeStamp < System.currentTimeMillis())
+        {
+            // Alarm set for tomorrow. adjust
+            timeStamp += 86400000;
+        }
+        return timeStamp;
     }
 }
