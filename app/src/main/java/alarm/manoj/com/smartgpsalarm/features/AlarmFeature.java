@@ -2,7 +2,6 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.interfaces.IAlarmFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
-import alarm.manoj.com.smartgpsalarm.recievers.AlarmReciever;
 import alarm.manoj.com.smartgpsalarm.services.AlarmService;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
