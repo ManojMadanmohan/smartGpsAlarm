@@ -74,6 +74,9 @@ public class AlarmFeature implements IAlarmFeature
             if(alarm.getAlarmId().equals(alarmId))
             {
                 //TODO
+                PendingIntent intent = getPendingIntent(alarm);
+                AlarmManager manager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
+                manager.cancel(intent);
                 LocationFeature.getInstance(_context).removeGeoFence(alarm.getGeofenceRequest().getRequestId());
                 alarm.setActive(false);
                 addAlarmToHistory(alarm);
