@@ -3,6 +3,7 @@ package alarm.manoj.com.smartgpsalarm.features;
 import alarm.manoj.com.smartgpsalarm.interfaces.IAlarmFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.recievers.AlarmReciever;
+import alarm.manoj.com.smartgpsalarm.services.AlarmService;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -35,7 +36,6 @@ public class AlarmFeature implements IAlarmFeature
     {
         _fileSystem = new FileSystem(context, KEY_FILE_SYSTEM);
         _context = context;
-        EventBus.getDefault().register(this);
     }
 
     public static AlarmFeature getInstance(Context context)
@@ -51,14 +51,15 @@ public class AlarmFeature implements IAlarmFeature
     public boolean setAlarm(GPSAlarm alarm)
     {
         //TODO
-        LocationFeature.getInstance(_context).addGeoFence(alarm.getGeofenceRequest());
+        PendingIntent pendingIntent = getPendingIntent(alarm);
+        LocationFeature.getInstance(_context).addGeoFence(alarm.getGeofenceRequest(), pendingIntent);
         AlarmManager manager = (AlarmManager) _context.getSystemService(Context.ALARM_SERVICE);
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
         {
-            manager.set(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), getPendingIntent(alarm));
+            manager.set(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), pendingIntent);
         } else
         {
-            manager.setExact(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), getPendingIntent(alarm));
+            manager.setExact(AlarmManager.RTC, alarm.getAlarmTimeAbsMillis(), pendingIntent);
         }
         alarm.setActive(true);
         addAlarmToHistory(alarm);
@@ -132,62 +133,10 @@ public class AlarmFeature implements IAlarmFeature
         }
     }
 
-    @Subscribe
-    public void onEvent(GeofencingEvent event)
+    private PendingIntent getPendingIntent(GPSAlarm alarm)
     {
-        for(Geofence geofence: event.getTriggeringGeofences())
-        {
-            for (GPSAlarm alarm : getAlarmHistory())
-            {
-                if (alarm.getGeofenceRequest().getRequestId().equals(geofence.getRequestId()))
-                {
-                    triggerAlarm();
-                    unsetAlarm(alarm.getAlarmId());
-                }
-            }
-        }
-    }
-
-    private void triggerAlarm()
-    {
-        Toast.makeText(_context, "GEOFENCE FOUND!!", Toast.LENGTH_LONG).show();
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if(alert == null)
-        {
-            // alert is null, using backup
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            // I can't see this ever being null (as always have a default notification)
-            // but just incase
-            if(alert == null)
-            {
-                // alert backup is null, using 2nd backup
-                alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            }
-        }
-        try
-        {
-            MediaPlayer player = new MediaPlayer();
-            player.setDataSource(_context, alert);
-            final AudioManager audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
-
-            if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
-            {
-                player.setAudioStreamType(AudioManager.STREAM_ALARM);
-                player.setLooping(false);
-                player.prepare();
-                player.start();
-            }
-        }catch (IOException ioex)
-        {
-            Toast.makeText(_context, "IO EXP",Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public PendingIntent getPendingIntent(GPSAlarm alarm)
-    {
-        Intent intent = new Intent(_context, AlarmReciever.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(_context, alarm.hashCode(), intent, 0);
+        Intent intent = AlarmService.getLaunchIntent(_context, alarm.getAlarmId());
+        PendingIntent pendingIntent = PendingIntent.getService(_context, alarm.hashCode(), intent, 0);
         return pendingIntent;
     }
 }

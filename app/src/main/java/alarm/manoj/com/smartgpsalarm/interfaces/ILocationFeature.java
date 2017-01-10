@@ -2,6 +2,7 @@ package alarm.manoj.com.smartgpsalarm.interfaces;
 
 
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
+import android.app.PendingIntent;
 import android.location.Location;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationListener;
@@ -15,7 +16,7 @@ public interface ILocationFeature
 
     public void removeLocationListener(LocationListener listener);
 
-    public void addGeoFence(DefaultGeoFenceRequest request);
+    public void addGeoFence(DefaultGeoFenceRequest request, PendingIntent pendingIntent);
 
     public void removeGeoFence(String requestId);
 }

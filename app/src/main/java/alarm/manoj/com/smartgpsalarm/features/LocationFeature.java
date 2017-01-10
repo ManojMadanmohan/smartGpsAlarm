@@ -2,7 +2,7 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.interfaces.ILocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
-import alarm.manoj.com.smartgpsalarm.services.GeoFenceIntentService;
+import alarm.manoj.com.smartgpsalarm.services.AlarmService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +25,7 @@ public class LocationFeature implements ILocationFeature
     private GoogleApiClient _googleApiClient;
 
     private List<DefaultLocationRequest> _pendingLocationRequests;
-    private List<DefaultGeoFenceRequest> _pendingGeofencingRequests;
+    private List<DefaultGeofenceAlarmRequest> _pendingGeofencingRequests;
     private PendingIntent _geofencingIntent;
 
     private static LocationFeature _instance;
@@ -98,15 +98,15 @@ public class LocationFeature implements ILocationFeature
     }
 
     @Override
-    public void addGeoFence(DefaultGeoFenceRequest request)
+    public void addGeoFence(DefaultGeoFenceRequest request, PendingIntent pendingIntent)
     {
         if(_googleApiClient.isConnected())
         {
             GeofencingRequest geofencingRequest = getGeofencingRequest(request);
-            LocationServices.GeofencingApi.addGeofences(_googleApiClient, geofencingRequest, getGeofencePendingIntent());
+            LocationServices.GeofencingApi.addGeofences(_googleApiClient, geofencingRequest, pendingIntent);
         } else
         {
-            _pendingGeofencingRequests.add(request);
+            _pendingGeofencingRequests.add(new DefaultGeofenceAlarmRequest(pendingIntent, request));
         }
     }
 
@@ -120,10 +120,10 @@ public class LocationFeature implements ILocationFeature
             LocationServices.GeofencingApi.removeGeofences(_googleApiClient, Arrays.asList(geofenceRequestId));
         } else
         {
-            Iterator<DefaultGeoFenceRequest> iterator = _pendingGeofencingRequests.iterator();
+            Iterator<DefaultGeofenceAlarmRequest> iterator = _pendingGeofencingRequests.iterator();
             while(iterator.hasNext())
             {
-                DefaultGeoFenceRequest request = iterator.next();
+                DefaultGeoFenceRequest request = iterator.next().getRequest();
                 if(request.getRequestId().equals(geofenceRequestId))
                 {
                     iterator.remove();
@@ -197,21 +197,6 @@ public class LocationFeature implements ILocationFeature
                 .build();
     }
 
-    private PendingIntent getGeofencePendingIntent()
-    {
-        // Reuse the PendingIntent if we already have it.
-        if (_geofencingIntent != null)
-        {
-            return _geofencingIntent;
-        }
-        Intent intent = new Intent(_googleApiClient.getContext(), GeoFenceIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        _geofencingIntent = PendingIntent.getService(_googleApiClient.getContext(), 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-        return getGeofencePendingIntent();
-    }
-
     @NonNull
     private GoogleApiClient.OnConnectionFailedListener getGApiFailedListener()
     {
@@ -238,9 +223,9 @@ public class LocationFeature implements ILocationFeature
                     addLocationListener(request.getFreq(), request.getPriority(), request.getListener());
                 }
                 _pendingLocationRequests.clear();
-                for(DefaultGeoFenceRequest request: _pendingGeofencingRequests)
+                for(DefaultGeofenceAlarmRequest request: _pendingGeofencingRequests)
                 {
-                    addGeoFence(request);
+                    addGeoFence(request.getRequest(), request.getDeliveryIntent());
                 }
                 _pendingGeofencingRequests.clear();
             }
