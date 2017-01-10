@@ -1,21 +1,19 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
-import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
-import org.greenrobot.eventbus.EventBus;
 
-public class GeoFenceIntentService extends IntentService
+public class AlarmService extends IntentService
 {
-    public GeoFenceIntentService()
+    public AlarmService()
     {
         this("Default");
     }
 
-    public GeoFenceIntentService(String name)
+    public AlarmService(String name)
     {
         super(name);
     }
@@ -25,13 +23,16 @@ public class GeoFenceIntentService extends IntentService
     {
         //Runs in background thread
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
+        String val = intent.getStringExtra("dummy");
+        Log.d("test",val);
+        Toast.makeText(this, val, Toast.LENGTH_SHORT).show();
         if(geofencingEvent.hasError())
         {
             Toast.makeText(this, "geofence error", Toast.LENGTH_SHORT).show();
         } else
         {
             Toast.makeText(this, "got geofence alarm! Yay :)", Toast.LENGTH_SHORT).show();
-            EventBus.getDefault().post(geofencingEvent);
+            //EventBus.getDefault().post(geofencingEvent);
         }
     }
 }
