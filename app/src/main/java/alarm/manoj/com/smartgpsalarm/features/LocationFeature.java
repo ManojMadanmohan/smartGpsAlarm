@@ -161,6 +161,28 @@ public class LocationFeature implements ILocationFeature
         }
     }
 
+    private class DefaultGeofenceAlarmRequest
+    {
+        private DefaultGeoFenceRequest _request;
+        private PendingIntent _deliveryIntent;
+
+        public DefaultGeofenceAlarmRequest(PendingIntent _deliveryIntent, DefaultGeoFenceRequest _request)
+        {
+            this._deliveryIntent = _deliveryIntent;
+            this._request = _request;
+        }
+
+        public PendingIntent getDeliveryIntent()
+        {
+            return _deliveryIntent;
+        }
+
+        public DefaultGeoFenceRequest getRequest()
+        {
+            return _request;
+        }
+    }
+
     private GeofencingRequest getGeofencingRequest(DefaultGeoFenceRequest request)
     {
         Geofence geofence = new Geofence.Builder().setCircularRegion(request.getLatLng().latitude, request.getLatLng().longitude, request.getRadiusMeters())
