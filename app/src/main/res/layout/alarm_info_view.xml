@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:background="@color/White"
+                >
+    <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:id="@+id/alarm_title"
+            android:text="MBP Mahape"
+            android:textColor="@color/Black"
+            android:layout_marginRight="4dp"/>
+    <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/alarm_state"
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:layout_marginRight="8dp"/>
+    <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/alarm_edit"
+            android:src="@drawable/ic_mode_edit_black_24dp"
+            android:layout_marginRight="8dp"/>
+    <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/alarm_remove"
+            android:src="@drawable/ic_delete_black_24dp"
+            android:layout_marginRight="8dp"/>
+
+</LinearLayout>
