@@ -105,6 +105,7 @@ public class AlarmFeature implements IAlarmFeature
     @Override
     public boolean removeAlarmFromHistory(String alarmId)
     {
+        _fileSystem.clear(alarmId);
         return false;
     }
 
