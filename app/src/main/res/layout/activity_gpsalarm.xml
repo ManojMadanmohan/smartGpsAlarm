@@ -30,5 +30,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"/>
+        <ListView
+                android:dividerHeight="2dp"
+                android:id="@+id/alarm_list"
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
     </RelativeLayout>
 </LinearLayout>

@@ -2,6 +2,7 @@ package alarm.manoj.com.smartgpsalarm.ui.activities;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
+import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import android.content.Intent;
 import android.location.Location;
@@ -11,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
     private GoogleMap _googleMap;
+    private AlarmViewAdapter _adapter;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
 
     private static final int PLACE_SEARCH_CODE = 1222;
@@ -50,6 +53,15 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         });
+        _adapter = new AlarmViewAdapter(this);
+        ((ListView)findViewById(R.id.alarm_list)).setAdapter(_adapter);
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        _adapter.notifyDataSetChanged();
     }
 
     @Override
