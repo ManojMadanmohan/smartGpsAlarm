@@ -3,6 +3,7 @@ package alarm.manoj.com.smartgpsalarm.ui.activities;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
+import android.content.Intent;
 import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,8 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -24,6 +30,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
 {
     private GoogleMap _googleMap;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
+
+    private static final int PLACE_SEARCH_CODE = 1222;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -56,10 +64,37 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         if(item.getItemId() == R.id.menu_search)
         {
+            try
+            {
+                Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(this);
+                startActivityForResult(intent, PLACE_SEARCH_CODE);
+            } catch (GooglePlayServicesRepairableException e)
+            {
+                // TODO: Handle the error.
+            } catch (GooglePlayServicesNotAvailableException e)
+            {
+                // TODO: Handle the error.
+            }
             Toast.makeText(this, "got menu", Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == PLACE_SEARCH_CODE)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                zoomToLocation(place.getLatLng());
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(place.getLatLng(), place.getName().toString(), 500);
+                dialog.show(getFragmentManager(), ADD_ALARM_TAG);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void setActionBar()
