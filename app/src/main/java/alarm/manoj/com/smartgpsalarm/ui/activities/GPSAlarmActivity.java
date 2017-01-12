@@ -7,6 +7,8 @@ import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import com.google.android.gms.location.LocationListener;
@@ -40,6 +42,24 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if(item.getItemId() == R.id.menu_search)
+        {
+            Toast.makeText(this, "got menu", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setActionBar()
