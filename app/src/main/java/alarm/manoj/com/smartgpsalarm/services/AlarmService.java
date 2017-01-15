@@ -4,7 +4,10 @@ import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
+import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -73,7 +76,7 @@ public class AlarmService extends IntentService
                 triggerAlarm();
             } else
             {
-                //TODO: start foreground
+                startForeground(alarm.getTitle());
                 LocationFeature.getInstance(this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                 {
                     @Override
@@ -83,7 +86,7 @@ public class AlarmService extends IntentService
                         {
                             LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
                             triggerAlarm();
-                            //TODO: stop foreground
+                            stopForeground(true);
                         }
                     }
                 });
@@ -140,5 +143,16 @@ public class AlarmService extends IntentService
         {
             Toast.makeText(this, "IO EXP",Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void startForeground(String alarmTitle)
+    {
+        Intent intent = new Intent(this, GPSAlarmActivity.class);
+        Notification notification = new Notification.Builder(this)
+                .setContentTitle("Smart GPS Alarm")
+                .setContentText("Actively checkin location for "+alarmTitle)
+                .setContentIntent(PendingIntent.getActivity(this, 1234, intent, 0))
+                .build();
+        startForeground(1234, notification);
     }
 }
