@@ -6,10 +6,6 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
-/**
- * Created by manoj on 15/1/17.
- */
-
 public class MaxHeightListView extends ListView
 {
     private final int maxHeight;
