@@ -1,5 +1,6 @@
 package alarm.manoj.com.smartgpsalarm.features;
 
+import alarm.manoj.com.smartgpsalarm.events.GPSAlarmChangeEvent;
 import alarm.manoj.com.smartgpsalarm.interfaces.IAlarmFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.services.AlarmService;
@@ -106,6 +107,7 @@ public class AlarmFeature implements IAlarmFeature
     public boolean removeAlarmFromHistory(String alarmId)
     {
         _fileSystem.clear(alarmId);
+        EventBus.getDefault().postSticky(new GPSAlarmChangeEvent());
         return false;
     }
 
@@ -130,6 +132,7 @@ public class AlarmFeature implements IAlarmFeature
         try
         {
             _fileSystem.write(alarm.getAlarmId(), GPSAlarm.toJson(alarm));
+            EventBus.getDefault().postSticky(new GPSAlarmChangeEvent());
         } catch (JSONException jsonExp)
         {
             //TODO;

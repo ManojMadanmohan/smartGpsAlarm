@@ -1,6 +1,7 @@
 package alarm.manoj.com.smartgpsalarm.ui.activities;
 
 import alarm.manoj.com.smartgpsalarm.R;
+import alarm.manoj.com.smartgpsalarm.events.GPSAlarmChangeEvent;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
@@ -27,6 +28,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
@@ -61,7 +64,15 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onStart()
     {
         super.onStart();
+        EventBus.getDefault().register(this);
         _adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -107,6 +118,12 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Subscribe(sticky = true)
+    public void onEvent(GPSAlarmChangeEvent event)
+    {
+        _adapter.notifyDataSetChanged();
     }
 
     private void setActionBar()
