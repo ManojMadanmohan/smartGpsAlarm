@@ -31,6 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"/>
         <ListView
+                android:background="@color/Gray"
                 android:visibility="gone"
                 android:dividerHeight="2dp"
                 android:id="@+id/alarm_list"
