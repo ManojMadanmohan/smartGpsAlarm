@@ -1,9 +1,13 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
+import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
+import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
+import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -11,12 +15,18 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 
 public class AlarmService extends IntentService
 {
     public static final String KEY_ALARM = "alarm_id";
+
+    private static final int LOC_FREQ_MILLIS = 5000;
 
     public static Intent getLaunchIntent(Context context, String alarmId)
     {
@@ -39,10 +49,61 @@ public class AlarmService extends IntentService
     protected void onHandleIntent(Intent intent)
     {
         //Runs in background thread
-        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         String alarmId = intent.getStringExtra(KEY_ALARM);
-        triggerAlarm();
+        GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
+        checkAlarm(alarm);
         AlarmFeature.getInstance(this).unsetAlarm(alarmId);
+    }
+
+    private void checkAlarm(GPSAlarm alarm)
+    {
+        long alarmTime = alarm.getAlarmTimeAbsMillis();
+        final DefaultGeoFenceRequest request = alarm.getGeofenceRequest();
+        if(alarmTime <= System.currentTimeMillis())
+        {
+            //Alarm triggered by time
+            triggerAlarm();
+        } else
+        {
+            //still time to go, check location
+            Location currentLoc = LocationFeature.getInstance(this).getLastLocation();
+            if(currentLoc == null || inGeofence(currentLoc, request))
+            {
+                //Loc not avl or loc in geofence already, trigger alarm
+                triggerAlarm();
+            } else
+            {
+                //TODO: start foreground
+                LocationFeature.getInstance(this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
+                {
+                    @Override
+                    public void onLocationChanged(Location location)
+                    {
+                        if(inGeofence(location, request))
+                        {
+                            LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
+                            triggerAlarm();
+                            //TODO: stop foreground
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private boolean inGeofence(Location location, DefaultGeoFenceRequest geoFenceRequest)
+    {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        float []results = new float[1];
+        Location.distanceBetween(latLng.latitude, latLng.longitude, geoFenceRequest.getLatLng().latitude, geoFenceRequest.getLatLng().longitude, results);
+        float dist = results[0];
+        if(dist <= geoFenceRequest.getRadiusMeters())
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     private void triggerAlarm()

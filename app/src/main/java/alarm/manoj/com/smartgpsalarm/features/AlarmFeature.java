@@ -111,7 +111,7 @@ public class AlarmFeature implements IAlarmFeature
         return false;
     }
 
-    private GPSAlarm getAlarm(String alarmId)
+    public GPSAlarm getAlarm(String alarmId)
     {
         if(!_fileSystem.hasKey(alarmId))
         {
