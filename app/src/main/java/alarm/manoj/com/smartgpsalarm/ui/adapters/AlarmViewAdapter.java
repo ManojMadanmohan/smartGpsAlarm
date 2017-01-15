@@ -8,25 +8,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import java.util.List;
+
 public class AlarmViewAdapter extends BaseAdapter
 {
     private Context _context;
+    private List<GPSAlarm> _alarmList;
 
     public AlarmViewAdapter(Context context)
     {
         _context = context;
+        _alarmList = AlarmFeature.getInstance(context).getAlarmHistory();
     }
 
     @Override
     public int getCount()
     {
-        return AlarmFeature.getInstance(_context).getAlarmHistory().size();
+        return _alarmList.size();
     }
 
     @Override
     public Object getItem(int i)
     {
-        return AlarmFeature.getInstance(_context).getAlarmHistory().get(i);
+        return _alarmList.get(i);
     }
 
     @Override
@@ -44,5 +48,12 @@ public class AlarmViewAdapter extends BaseAdapter
         }
         ((AlarmInfoView) view).init((GPSAlarm) getItem(i));
         return view;
+    }
+
+    @Override
+    public void notifyDataSetChanged()
+    {
+        _alarmList = AlarmFeature.getInstance(_context).getAlarmHistory();
+        super.notifyDataSetChanged();
     }
 }
