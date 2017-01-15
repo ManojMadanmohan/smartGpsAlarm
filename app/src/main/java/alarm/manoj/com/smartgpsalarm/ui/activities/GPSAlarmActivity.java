@@ -9,6 +9,7 @@ import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import android.content.Intent;
 import android.location.Location;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -193,16 +194,20 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                     _googleMap.addCircle(getAlarmCircle(alarm));
                 }
             }
+
         }
     }
 
-    @NonNull
     private CircleOptions getAlarmCircle(GPSAlarm alarm)
     {
-        return new CircleOptions().center(alarm.getGeofenceRequest().getLatLng()).radius(alarm.getGeofenceRequest().getRadiusMeters()).fillColor(R.color.AliceBlue);
+        return getMapCircle(alarm.getGeofenceRequest().getLatLng(), alarm.getGeofenceRequest().getRadiusMeters(), getResources().getColor(R.color.AliceBlue));
     }
 
-    @NonNull
+    private CircleOptions getMapCircle(LatLng latLng, double radiusM, @ColorInt int color)
+    {
+        return new CircleOptions().center(latLng).radius(radiusM).fillColor(color);
+    }
+
     private MarkerOptions getAlarmMarker(GPSAlarm alarm)
     {
         return new MarkerOptions().position(alarm.getGeofenceRequest().getLatLng()).title(alarm.getTitle());
