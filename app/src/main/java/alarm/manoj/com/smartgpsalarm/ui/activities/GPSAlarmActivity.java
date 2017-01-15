@@ -2,7 +2,9 @@ package alarm.manoj.com.smartgpsalarm.ui.activities;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.events.GPSAlarmChangeEvent;
+import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
+import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import android.content.Intent;
@@ -27,7 +29,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -66,6 +70,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         super.onStart();
         EventBus.getDefault().register(this);
         _adapter.notifyDataSetChanged();
+        resetActiveAlarmsOnMap();
     }
 
     @Override
@@ -124,6 +129,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     public void onEvent(GPSAlarmChangeEvent event)
     {
         _adapter.notifyDataSetChanged();
+        resetActiveAlarmsOnMap();
     }
 
     private void setActionBar()
@@ -138,6 +144,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _googleMap = googleMap;
         _googleMap.setMyLocationEnabled(true);
         zoomToCurrentLocation();
+        resetActiveAlarmsOnMap();
     }
 
     private LatLng getMapCenter()
@@ -171,5 +178,33 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                     .zoom(17)                   // Sets the zoom
                     .build();                   // Creates a CameraPosition from the builder
         _googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    private void resetActiveAlarmsOnMap()
+    {
+        if(_googleMap != null)
+        {
+            _googleMap.clear();
+            for (GPSAlarm alarm : AlarmFeature.getInstance(this).getAlarmHistory())
+            {
+                if (alarm.isActive())
+                {
+                    _googleMap.addMarker(getAlarmMarker(alarm));
+                    _googleMap.addCircle(getAlarmCircle(alarm));
+                }
+            }
+        }
+    }
+
+    @NonNull
+    private CircleOptions getAlarmCircle(GPSAlarm alarm)
+    {
+        return new CircleOptions().center(alarm.getGeofenceRequest().getLatLng()).radius(alarm.getGeofenceRequest().getRadiusMeters()).fillColor(R.color.AliceBlue);
+    }
+
+    @NonNull
+    private MarkerOptions getAlarmMarker(GPSAlarm alarm)
+    {
+        return new MarkerOptions().position(alarm.getGeofenceRequest().getLatLng()).title(alarm.getTitle());
     }
 }
