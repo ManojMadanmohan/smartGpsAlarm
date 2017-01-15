@@ -40,6 +40,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
 {
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
+    private ListView _alarmList;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
 
     private static final int PLACE_SEARCH_CODE = 1222;
@@ -62,7 +63,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             }
         });
         _adapter = new AlarmViewAdapter(this);
-        ((ListView)findViewById(R.id.alarm_list)).setAdapter(_adapter);
+        _alarmList = (ListView)findViewById(R.id.alarm_list);
+        _alarmList.setAdapter(_adapter);
     }
 
     @Override
@@ -105,6 +107,17 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                 // TODO: Handle the error.
             }
             Toast.makeText(this, "got menu", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        if(item.getItemId() == R.id.menu_favorites)
+        {
+            if(_alarmList.getVisibility() == View.VISIBLE)
+            {
+                _alarmList.setVisibility(View.GONE);
+            } else
+            {
+                _alarmList.setVisibility(View.VISIBLE);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
