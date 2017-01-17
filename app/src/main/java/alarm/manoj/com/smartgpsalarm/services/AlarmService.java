@@ -15,6 +15,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.location.GeofencingEvent;
@@ -31,6 +32,8 @@ public class AlarmService extends IntentService
 
     private static final int LOC_FREQ_MILLIS = 5000;
 
+    private Handler _handler;
+
     public static Intent getLaunchIntent(Context context, String alarmId)
     {
         Intent intent = new Intent(context, AlarmService.class);
@@ -46,6 +49,7 @@ public class AlarmService extends IntentService
     public AlarmService(String name)
     {
         super(name);
+        _handler = new Handler();
     }
 
     @Override
@@ -77,17 +81,24 @@ public class AlarmService extends IntentService
             } else
             {
                 startForeground(alarm.getTitle());
-                LocationFeature.getInstance(this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
+                _handler.post(new Runnable()
                 {
                     @Override
-                    public void onLocationChanged(Location location)
+                    public void run()
                     {
-                        if(inGeofence(location, request))
+                        LocationFeature.getInstance(AlarmService.this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                         {
-                            LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
-                            triggerAlarm();
-                            stopForeground(true);
-                        }
+                            @Override
+                            public void onLocationChanged(Location location)
+                            {
+                                if(inGeofence(location, request))
+                                {
+                                    LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
+                                    triggerAlarm();
+                                    stopForeground(true);
+                                }
+                            }
+                        });
                     }
                 });
             }
