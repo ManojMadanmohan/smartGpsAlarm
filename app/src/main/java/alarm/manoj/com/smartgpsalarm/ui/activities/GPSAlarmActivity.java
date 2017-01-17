@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
@@ -139,7 +140,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Subscribe(sticky = true)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(GPSAlarmChangeEvent event)
     {
         _adapter.notifyDataSetChanged();
