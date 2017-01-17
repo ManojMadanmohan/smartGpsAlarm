@@ -1,5 +1,6 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
+import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
@@ -7,9 +8,12 @@ import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -160,10 +164,37 @@ public class AlarmService extends IntentService
     {
         Intent intent = new Intent(this, GPSAlarmActivity.class);
         Notification notification = new Notification.Builder(this)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_black_24dp))
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_play_arrow_black_24dp)
                 .setContentTitle("Smart GPS Alarm")
                 .setContentText("Actively checkin location for "+alarmTitle)
-                .setContentIntent(PendingIntent.getActivity(this, 1234, intent, 0))
+                .setContentIntent(PendingIntent.getActivity(this, 1, intent, 0))
+                .setTicker("dummy ticker")
                 .build();
-        startForeground(1234, notification);
+        startForeground(1, notification);
+    }
+
+    protected Notification newRunningNotification(Context context) {
+        Notification notification = newNotification(context);
+
+        notification.flags = Notification.FLAG_ONGOING_EVENT
+                | Notification.FLAG_NO_CLEAR;
+        notification.when = 0;
+
+        notification.contentIntent = PendingIntent.getActivity(context,
+                11,
+                new Intent(context, GPSAlarmActivity.class), 0);
+
+        return notification;
+    }
+
+    protected Notification newNotification(Context context) {
+        Notification notification = new Notification();
+        notification.icon = R.drawable.ic_stop_black_24dp;
+        notification.when = System.currentTimeMillis();
+
+        return notification;
     }
 }
