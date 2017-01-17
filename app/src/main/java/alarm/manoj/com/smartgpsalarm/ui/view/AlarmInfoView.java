@@ -63,15 +63,15 @@ public class AlarmInfoView extends CardView
             @Override
             public void onClick(View view)
             {
-                if(alarm.isActive())
+                if(_alarm.isActive())
                 {
-                    alarm.setActive(false);
-                    AlarmFeature.getInstance(getContext()).unsetAlarm(alarm.getAlarmId());
+                    _alarm.setActive(false);
+                    AlarmFeature.getInstance(getContext()).unsetAlarm(_alarm.getAlarmId());
                     stateView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
                 } else
                 {
-                    alarm.setActive(true);
-                    AlarmFeature.getInstance(getContext()).setAlarm(alarm);
+                    _alarm.setActive(true);
+                    AlarmFeature.getInstance(getContext()).setAlarm(_alarm);
                     stateView.setImageResource(R.drawable.ic_stop_black_24dp);
                 }
             }
@@ -81,7 +81,7 @@ public class AlarmInfoView extends CardView
             @Override
             public void onClick(View view)
             {
-                AlarmFeature.getInstance(getContext()).removeAlarmFromHistory(alarm.getAlarmId());
+                AlarmFeature.getInstance(getContext()).removeAlarmFromHistory(_alarm.getAlarmId());
                 setVisibility(View.GONE);
             }
         });
