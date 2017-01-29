@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -245,13 +246,22 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             circleView.getLayoutParams().height = 2 * radiusWidthPx;
         } else
         {
-            int diffWidthPx = radiusWidthPx * 2 - screenWidthPx;
-            circleView.setLeft(-diffWidthPx / 2);
-            circleView.setRight(diffWidthPx / 2 + screenWidthPx);
 
             int diffHeightPx = radiusWidthPx * 2 - screenHeightPx;
-            circleView.setTop(-diffHeightPx / 2);
-            circleView.setTop(diffHeightPx / 2 + screenHeightPx);
+
+            int diffWidthPx = radiusWidthPx * 2 - screenWidthPx;
+
+            if(diffHeightPx <= 0) diffHeightPx = 0;
+            if(diffWidthPx <= 0) diffWidthPx = 0;
+
+            circleView.getLayoutParams().width = 2 * radiusWidthPx;
+            circleView.getLayoutParams().height = 2 * radiusWidthPx;
+
+            ((RelativeLayout.LayoutParams)circleView.getLayoutParams()).setMargins((-diffWidthPx / 2), (-diffHeightPx / 2), (-diffWidthPx / 2), (-diffHeightPx / 2));
+//            circleView.setRight(diffWidthPx / 2 + screenWidthPx);
+//
+//            circleView.setTop(-diffHeightPx / 2);
+//            circleView.setTop(diffHeightPx / 2 + screenHeightPx);
         }
         circleView.requestLayout();
     }
