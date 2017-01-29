@@ -30,12 +30,5 @@
             android:layout_centerHorizontal="true"
             android:background="@color/Green"
             />
-    <View
-            android:id="@+id/set_alarm_radius_circle"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@drawable/set_gps_radius_circle"
-            android:layout_centerInParent="true"
-    />
 
 </RelativeLayout>
