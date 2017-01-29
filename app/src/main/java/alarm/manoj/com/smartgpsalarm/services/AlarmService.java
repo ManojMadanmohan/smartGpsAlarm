@@ -232,7 +232,7 @@ public class AlarmService extends IntentService
     public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
     {
         NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
-        compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
+        compactNotifBuilder.setSmallIcon(R.drawable.powered_by_google_dark);
         compactNotifBuilder.setContentTitle("GPS alarm");
         compactNotifBuilder.setContentText("Set for "+alarm.getTitle()+" at "+new SimpleDateFormat("hh:mm a").format(new Date(alarm.getAlarmTimeAbsMillis())));
         compactNotifBuilder.setContentIntent(getContentIntent(context));
