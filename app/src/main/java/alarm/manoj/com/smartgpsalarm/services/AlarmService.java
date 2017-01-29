@@ -84,17 +84,16 @@ public class AlarmService extends IntentService
         String alarmId = intent.getStringExtra(KEY_ALARM);
         GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
         checkAlarm(alarm);
-        AlarmFeature.getInstance(this).unsetAlarm(alarmId);
     }
 
-    private void checkAlarm(GPSAlarm alarm)
+    private void checkAlarm(final GPSAlarm alarm)
     {
         long alarmTime = alarm.getAlarmTimeAbsMillis();
         final DefaultGeoFenceRequest request = alarm.getGeofenceRequest();
         if(alarmTime > System.currentTimeMillis())
         {
             //Alarm triggered by location
-            triggerAlarm();
+            triggerAlarm(alarm.getAlarmId());
         } else
         {
             //still time to go, check location
@@ -102,15 +101,16 @@ public class AlarmService extends IntentService
             if(currentLoc == null || inGeofence(currentLoc, request))
             {
                 //Loc not avl or loc in geofence already, trigger alarm
-                triggerAlarm();
+                triggerAlarm(alarm.getAlarmId());
             } else
             {
-                startForeground(alarm.getTitle());
                 _handler.post(new Runnable()
                 {
                     @Override
                     public void run()
                     {
+                        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1, buildStickyNotification(AlarmService.this));
+                        startForeground(alarm.getTitle());
                         LocationFeature.getInstance(AlarmService.this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                         {
                             @Override
@@ -119,7 +119,7 @@ public class AlarmService extends IntentService
                                 if(inGeofence(location, request))
                                 {
                                     LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
-                                    triggerAlarm();
+                                    triggerAlarm(alarm.getAlarmId());
                                     stopForeground(true);
                                 }
                             }
@@ -145,7 +145,7 @@ public class AlarmService extends IntentService
         }
     }
 
-    private void triggerAlarm()
+    private void triggerAlarm(String alarmId)
     {
         Toast.makeText(this, "GEOFENCE FOUND!!", Toast.LENGTH_LONG).show();
         Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -179,6 +179,7 @@ public class AlarmService extends IntentService
         {
             Toast.makeText(this, "IO EXP",Toast.LENGTH_LONG).show();
         }
+        AlarmFeature.getInstance(this).unsetAlarm(alarmId);
     }
 
     private void startForeground(String alarmTitle)
@@ -217,5 +218,24 @@ public class AlarmService extends IntentService
         notification.when = System.currentTimeMillis();
 
         return notification;
+    }
+
+    public static Notification buildStickyNotification(Context context)
+    {
+        NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
+        compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
+        compactNotifBuilder.setContentTitle("helow as");
+        compactNotifBuilder.setContentText("dummy");
+        compactNotifBuilder.setContentIntent(getContentIntent(context));
+        compactNotifBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+        compactNotifBuilder.setOngoing(true);
+        compactNotifBuilder.setAutoCancel(false);
+        return compactNotifBuilder.build();
+    }
+
+    private static PendingIntent getContentIntent(Context context)
+    {
+        Intent intent = new Intent(context, GPSAlarmActivity.class);
+        return PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
