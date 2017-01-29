@@ -82,7 +82,6 @@ public class AlarmInfoView extends CardView
             public void onClick(View view)
             {
                 AlarmFeature.getInstance(getContext()).removeAlarmFromHistory(_alarm.getAlarmId());
-                setVisibility(View.GONE);
             }
         });
     }

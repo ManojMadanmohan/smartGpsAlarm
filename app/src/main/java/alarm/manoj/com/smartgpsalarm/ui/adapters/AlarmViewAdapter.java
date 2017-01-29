@@ -54,6 +54,14 @@ public class AlarmViewAdapter extends BaseAdapter
     public void notifyDataSetChanged()
     {
         _alarmList = AlarmFeature.getInstance(_context).getAlarmHistory();
+        notifyDataSetInvalidated();
         super.notifyDataSetChanged();
+    }
+
+    @Override
+    public void notifyDataSetInvalidated()
+    {
+        _alarmList = AlarmFeature.getInstance(_context).getAlarmHistory();
+        super.notifyDataSetInvalidated();
     }
 }
