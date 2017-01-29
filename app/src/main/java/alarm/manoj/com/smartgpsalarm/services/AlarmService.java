@@ -31,6 +31,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class AlarmService extends IntentService
 {
@@ -109,8 +112,9 @@ public class AlarmService extends IntentService
                     @Override
                     public void run()
                     {
-                        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1, buildStickyNotification(AlarmService.this));
-                        startForeground(alarm.getTitle());
+                        final Notification notification = buildStickyNotification(AlarmService.this, alarm);
+                        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1010, notification);
+                        startForeground(alarm);
                         LocationFeature.getInstance(AlarmService.this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                         {
                             @Override
@@ -121,6 +125,7 @@ public class AlarmService extends IntentService
                                     LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
                                     triggerAlarm(alarm.getAlarmId());
                                     stopForeground(true);
+                                    ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(1010);
                                 }
                             }
                         });
@@ -182,20 +187,24 @@ public class AlarmService extends IntentService
         AlarmFeature.getInstance(this).unsetAlarm(alarmId);
     }
 
-    private void startForeground(String alarmTitle)
+    private void startForeground(GPSAlarm alarm)
     {
+        String alarmTitle = alarm.getTitle();
         Intent intent = new Intent(this, GPSAlarmActivity.class);
         Notification notification = new Notification.Builder(this)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_black_24dp))
                 .setWhen(System.currentTimeMillis())
-                .setAutoCancel(true)
+                .setAutoCancel(false)
+                .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_play_arrow_black_24dp)
                 .setContentTitle("Smart GPS Alarm")
                 .setContentText("Actively checkin location for "+alarmTitle)
-                .setContentIntent(PendingIntent.getActivity(this, 1, intent, 0))
+                .setContentIntent(PendingIntent.getActivity(this, 1337, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setPriority(Notification.PRIORITY_MAX)
                 .setTicker("dummy ticker")
                 .build();
-        startForeground(1, notification);
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        startForeground(1010, buildStickyNotification(this, alarm));
     }
 
     protected Notification newRunningNotification(Context context) {
@@ -220,12 +229,12 @@ public class AlarmService extends IntentService
         return notification;
     }
 
-    public static Notification buildStickyNotification(Context context)
+    public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
     {
         NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
         compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
-        compactNotifBuilder.setContentTitle("helow as");
-        compactNotifBuilder.setContentText("dummy");
+        compactNotifBuilder.setContentTitle("GPS alarm");
+        compactNotifBuilder.setContentText("Set for "+alarm.getTitle()+" at "+new SimpleDateFormat("hh:mm a").format(new Date(alarm.getAlarmTimeAbsMillis())));
         compactNotifBuilder.setContentIntent(getContentIntent(context));
         compactNotifBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
         compactNotifBuilder.setOngoing(true);
