@@ -106,6 +106,7 @@ public class AlarmFeature implements IAlarmFeature
     @Override
     public boolean removeAlarmFromHistory(String alarmId)
     {
+        unsetAlarm(alarmId);
         _fileSystem.clear(alarmId);
         EventBus.getDefault().postSticky(new GPSAlarmChangeEvent());
         return false;
