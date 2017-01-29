@@ -20,6 +20,8 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.location.GeofencingEvent;
@@ -48,6 +50,25 @@ public class AlarmService extends IntentService
     public AlarmService()
     {
         this("Default");
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId)
+    {
+        super.onStart(intent, startId);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
+    }
+
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        return null;
     }
 
     public AlarmService(String name)
