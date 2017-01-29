@@ -8,11 +8,13 @@ import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import android.content.Intent;
+import android.graphics.Point;
 import android.location.Location;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -158,6 +160,14 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         _googleMap = googleMap;
         _googleMap.setMyLocationEnabled(true);
+        _googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener()
+        {
+            @Override
+            public void onCameraMove()
+            {
+                updateSetMarkerRadius(500);
+            }
+        });
         zoomToCurrentLocation();
         resetActiveAlarmsOnMap();
     }
@@ -210,6 +220,40 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
         }
+    }
+
+    private void updateSetMarkerRadius(int radiusM)
+    {
+        View circleView = findViewById(R.id.set_alarm_radius_circle);
+        LatLng leftLoc = _googleMap.getProjection().getVisibleRegion().farLeft;
+        LatLng rightLoc = _googleMap.getProjection().getVisibleRegion().farRight;
+        LatLng nearLeftLoc = _googleMap.getProjection().getVisibleRegion().nearLeft;
+
+        float results[] = new float[2];
+        Location.distanceBetween(leftLoc.latitude, leftLoc.longitude, rightLoc.latitude, rightLoc.longitude, results);
+        int screenDistM = (int)results[0];
+        Point leftEndPoint = _googleMap.getProjection().toScreenLocation(leftLoc);
+        Point rightEndPoint = _googleMap.getProjection().toScreenLocation(rightLoc);
+        Point nearLeftEndPoint = _googleMap.getProjection().toScreenLocation(nearLeftLoc);
+        int screenWidthPx = Math.abs(leftEndPoint.x - rightEndPoint.x);
+        int screenHeightPx = Math.abs(leftEndPoint.y - nearLeftEndPoint.y);
+
+        int radiusWidthPx = (int)((radiusM*1.0/screenDistM)*screenWidthPx);
+        if(radiusWidthPx*2 < Math.min(screenWidthPx, screenHeightPx))
+        {
+            circleView.getLayoutParams().width = 2 * radiusWidthPx;
+            circleView.getLayoutParams().height = 2 * radiusWidthPx;
+        } else
+        {
+            int diffWidthPx = radiusWidthPx * 2 - screenWidthPx;
+            circleView.setLeft(-diffWidthPx / 2);
+            circleView.setRight(diffWidthPx / 2 + screenWidthPx);
+
+            int diffHeightPx = radiusWidthPx * 2 - screenHeightPx;
+            circleView.setTop(-diffHeightPx / 2);
+            circleView.setTop(diffHeightPx / 2 + screenHeightPx);
+        }
+        circleView.requestLayout();
     }
 
     private CircleOptions getAlarmCircle(GPSAlarm alarm)
