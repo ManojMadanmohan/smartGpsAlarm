@@ -124,6 +124,7 @@ public class AlarmFeature implements IAlarmFeature
         } catch (JSONException jsonExp)
         {
             //TODO;
+            jsonExp.printStackTrace();
             return null;
         }
     }
