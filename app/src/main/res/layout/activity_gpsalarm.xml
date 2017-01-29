@@ -29,6 +29,7 @@
                 android:layout_height="match_parent"/>
 
         <View
+                android:clickable="false"
                 android:id="@+id/set_alarm_radius_circle"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
