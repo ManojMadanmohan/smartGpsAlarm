@@ -7,6 +7,7 @@ import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
+import alarm.manoj.com.titleseekbar.TitleSeekbar;
 import android.content.Intent;
 import android.graphics.Point;
 import android.location.Location;
@@ -45,6 +46,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
+    private TitleSeekbar _seekbar;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
 
     private static final int PLACE_SEARCH_CODE = 1222;
@@ -67,8 +69,27 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             }
         });
         _adapter = new AlarmViewAdapter(this);
+        _seekbar = (TitleSeekbar) findViewById(R.id.seekbar);
         _alarmList = (ListView)findViewById(R.id.alarm_list);
         _alarmList.setAdapter(_adapter);
+        _seekbar.setSeekHandler(new TitleSeekbar.TitleSeekbarHandler()
+        {
+            @Override
+            public String getTitle(int progress, int maxProgress)
+            {
+                double ratio = progress*1.0/maxProgress;
+                int radiusM = (int)(4500*ratio)+500;
+                return radiusM+" metres";
+            }
+
+            @Override
+            public void onSeekbarChangeListener(int progress, int maxProgress)
+            {
+                double ratio = progress*1.0/maxProgress;
+                int radiusM = (int)(4500*ratio)+500;
+                updateSetMarkerRadius(radiusM);
+            }
+        });
     }
 
     @Override
