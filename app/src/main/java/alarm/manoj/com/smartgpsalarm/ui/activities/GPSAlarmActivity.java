@@ -47,8 +47,10 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
     private TitleSeekbar _seekbar;
-    private int _radiusM = 500;
+    private int _radiusM = MINIMUM_RADIUS;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
+    private static final int MINIMUM_RADIUS = 100;
+    private static final int MAXIMUM_RADIUS = 2000;
 
     private static final int PLACE_SEARCH_CODE = 1222;
 
@@ -79,7 +81,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             public String getTitle(int progress, int maxProgress)
             {
                 double ratio = progress*1.0/maxProgress;
-                _radiusM = (int)(4500*ratio)+500;
+                _radiusM = (int)((MAXIMUM_RADIUS-MINIMUM_RADIUS)*ratio)+MINIMUM_RADIUS;
                 return _radiusM+" metres";
             }
 
@@ -87,10 +89,11 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             public void onSeekbarChangeListener(int progress, int maxProgress)
             {
                 double ratio = progress*1.0/maxProgress;
-                _radiusM = (int)(4500*ratio)+500;
+                _radiusM = (int)((MAXIMUM_RADIUS-MINIMUM_RADIUS)*ratio)+MINIMUM_RADIUS;
                 updateSetMarkerRadius(_radiusM);
             }
         });
+        _seekbar.setSeekTitle(_radiusM+" metres"); //default
     }
 
     @Override
@@ -193,6 +196,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         });
         zoomToCurrentLocation();
         resetActiveAlarmsOnMap();
+        _seekbar.getSeekbar().setProgress(0);
     }
 
     private LatLng getMapCenter()

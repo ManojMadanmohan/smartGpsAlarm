@@ -37,7 +37,11 @@ public class TitleSeekbar extends LinearLayout
     public void setSeekHandler(TitleSeekbarHandler handler)
     {
         _handler = handler;
-        _seekbar.setProgress(0);
+    }
+
+    public void setSeekTitle(String title)
+    {
+        _titleView.setText(title);
     }
 
     private void initView()
