@@ -21,6 +21,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -180,6 +181,8 @@ public class AlarmService extends IntentService
                 player.prepare();
                 player.start();
             }
+            long[] pattern = {0, 1000, 500};
+            ((Vibrator)getSystemService(VIBRATOR_SERVICE)).vibrate(pattern, 0);
         }catch (IOException ioex)
         {
             Toast.makeText(this, "IO EXP",Toast.LENGTH_LONG).show();
