@@ -6,6 +6,7 @@ import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
+import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -24,6 +26,8 @@ import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
@@ -186,6 +190,7 @@ public class AlarmService extends IntentService
             }
             long[] pattern = {0, 1000, 500};
             ((Vibrator)getSystemService(VIBRATOR_SERVICE)).vibrate(pattern, 0);
+            showAlarmView();
         }catch (IOException ioex)
         {
             Toast.makeText(this, "IO EXP",Toast.LENGTH_LONG).show();
@@ -211,6 +216,23 @@ public class AlarmService extends IntentService
                 .build();
         notification.flags |= Notification.FLAG_NO_CLEAR;
         startForeground(1010, buildStickyNotification(this, alarm));
+    }
+
+    public void showAlarmView()
+    {
+        AlarmWarningView view = new AlarmWarningView(this);
+
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+
+        params.gravity = Gravity.TOP | Gravity.LEFT;
+        params.x = 0;
+        params.y = 100;
+        ((WindowManager) getSystemService(WINDOW_SERVICE)).addView(view, params);
     }
 
     protected Notification newRunningNotification(Context context) {
