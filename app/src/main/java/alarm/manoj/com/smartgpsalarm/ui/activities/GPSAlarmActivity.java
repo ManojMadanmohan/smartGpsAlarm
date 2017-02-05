@@ -3,6 +3,7 @@ package alarm.manoj.com.smartgpsalarm.ui.activities;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.events.GPSAlarmChangeEvent;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
+import alarm.manoj.com.smartgpsalarm.features.FileSystem;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
@@ -46,8 +47,11 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
     private TitleSeekbar _seekbar;
+    private FileSystem _radiusStore;
     private int _radiusM = MINIMUM_RADIUS;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
+    private static final String RADIUS_KEY = "radius_key";
+    private static final String RADIUS_STORE = "radius";
     private static final int MINIMUM_RADIUS = 100;
     private static final int MAXIMUM_RADIUS = 2000;
 
@@ -58,6 +62,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gpsalarm);
+        _radiusStore = new FileSystem(this, RADIUS_STORE);
         ((MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment)).getMapAsync(this);
         setActionBar();
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener()
@@ -99,6 +104,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onStart()
     {
         super.onStart();
+        _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
+        initSeekbarProgress();
         EventBus.getDefault().register(this);
         _adapter.notifyDataSetChanged();
         resetActiveAlarmsOnMap();
@@ -108,6 +115,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onStop()
     {
         EventBus.getDefault().unregister(this);
+        _radiusStore.write(RADIUS_KEY, String.valueOf(_radiusM));
         super.onStop();
     }
 
@@ -194,7 +202,15 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         });
         zoomToCurrentLocation();
         resetActiveAlarmsOnMap();
-        _seekbar.getSeekbar().setProgress(0);
+        initSeekbarProgress();
+    }
+
+    private void initSeekbarProgress()
+    {
+        _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
+        int maxProgress = _seekbar.getSeekbar().getMax();
+        int progress = (int)(((_radiusM - MINIMUM_RADIUS)*1.0/(MAXIMUM_RADIUS-MINIMUM_RADIUS))*maxProgress);
+        _seekbar.getSeekbar().setProgress(progress);
     }
 
     private LatLng getMapCenter()

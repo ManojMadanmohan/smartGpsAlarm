@@ -22,12 +22,12 @@ public class FileSystem
         _editor.putString(key, value);
         _editor.commit();
     }
-    
-    public String read(String key)
+
+    public String read(String key, String defaultValue)
     {
-        return _preferences.getString(key, null);
+        return _preferences.getString(key, defaultValue);
     }
-    
+
     public void clear(String key)
     {
         _editor.remove(key);
@@ -57,7 +57,7 @@ public class FileSystem
         List<String> values = new ArrayList<String>();
         for (String key : keyList())
         {
-            String value = read(key);
+            String value = read(key, null);
             values.add(value);
         }
         return values;

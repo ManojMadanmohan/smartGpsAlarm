@@ -92,7 +92,7 @@ public class AlarmFeature implements IAlarmFeature
         {
             try
             {
-                alarmList.add(GPSAlarm.fromJson(_fileSystem.read(alarmId)));
+                alarmList.add(GPSAlarm.fromJson(_fileSystem.read(alarmId, null)));
             } catch (JSONException jsonExp)
             {
                 //corrupted entry, remove
@@ -120,7 +120,7 @@ public class AlarmFeature implements IAlarmFeature
         }
         try
         {
-            return GPSAlarm.fromJson(_fileSystem.read(alarmId));
+            return GPSAlarm.fromJson(_fileSystem.read(alarmId, null));
         } catch (JSONException jsonExp)
         {
             //TODO;
