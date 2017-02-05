@@ -67,7 +67,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             public void onClick(View view)
             {
                 LatLng alarmLoc = getMapCenter();
-                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "", 500);
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "", _radiusM);
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         });
@@ -161,7 +161,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             {
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 zoomToLocation(place.getLatLng());
-                AddAlarmDialog dialog = AddAlarmDialog.newInstance(place.getLatLng(), place.getName().toString(), 500);
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(place.getLatLng(), place.getName().toString(), _radiusM);
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         }
