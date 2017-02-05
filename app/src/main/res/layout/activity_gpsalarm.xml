@@ -42,14 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"/>
-        <ListView
-                android:background="@color/Gray"
-                android:visibility="gone"
-                android:dividerHeight="2dp"
-                android:id="@+id/alarm_list"
-                android:layout_alignParentBottom="true"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"/>
+
         <alarm.manoj.com.titleseekbar.TitleSeekbar
                 android:id="@+id/seekbar"
                 android:paddingTop="12dp"
@@ -60,6 +53,14 @@
                 android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+        />
+        <ListView
+                android:background="@color/Gray"
+                android:visibility="gone"
+                android:dividerHeight="2dp"
+                android:id="@+id/alarm_list"
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"/>
     </RelativeLayout>
 </LinearLayout>
