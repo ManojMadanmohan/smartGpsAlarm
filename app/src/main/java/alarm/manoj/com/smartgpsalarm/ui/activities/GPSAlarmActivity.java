@@ -21,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.LocationListener;
@@ -135,7 +134,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             {
                 // TODO: Handle the error.
             }
-            Toast.makeText(this, "got menu", Toast.LENGTH_SHORT).show();
             return true;
         }
         if(item.getItemId() == R.id.menu_favorites)
@@ -216,7 +214,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onLocationChanged(Location location)
             {
-                Toast.makeText(GPSAlarmActivity.this, "got location", Toast.LENGTH_SHORT).show();
                 zoomToLocation(new LatLng(location.getLatitude(), location.getLongitude()));
                 LocationFeature.getInstance(GPSAlarmActivity.this).removeLocationListener(this);
             }
