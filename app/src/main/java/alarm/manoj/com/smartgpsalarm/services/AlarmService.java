@@ -153,7 +153,10 @@ public class AlarmService extends IntentService
 
     private void triggerAlarm(String alarmId)
     {
-        Toast.makeText(this, "GEOFENCE FOUND!!", Toast.LENGTH_LONG).show();
+        GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
+        final Notification notification = buildStickyNotification(AlarmService.this, alarm);
+        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1010, notification);
+        startForeground(alarm);
         Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         if(alert == null)
         {
