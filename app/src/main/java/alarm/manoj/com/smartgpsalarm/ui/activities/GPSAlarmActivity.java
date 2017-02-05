@@ -264,45 +264,48 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void updateSetMarkerRadius(int radiusM)
     {
-        View circleView = findViewById(R.id.set_alarm_radius_circle);
-        LatLng leftLoc = _googleMap.getProjection().getVisibleRegion().farLeft;
-        LatLng rightLoc = _googleMap.getProjection().getVisibleRegion().farRight;
-        LatLng nearLeftLoc = _googleMap.getProjection().getVisibleRegion().nearLeft;
-
-        float results[] = new float[2];
-        Location.distanceBetween(leftLoc.latitude, leftLoc.longitude, rightLoc.latitude, rightLoc.longitude, results);
-        int screenDistM = (int)results[0];
-        Point leftEndPoint = _googleMap.getProjection().toScreenLocation(leftLoc);
-        Point rightEndPoint = _googleMap.getProjection().toScreenLocation(rightLoc);
-        Point nearLeftEndPoint = _googleMap.getProjection().toScreenLocation(nearLeftLoc);
-        int screenWidthPx = Math.abs(leftEndPoint.x - rightEndPoint.x);
-        int screenHeightPx = Math.abs(leftEndPoint.y - nearLeftEndPoint.y);
-
-        int radiusWidthPx = (int)((radiusM*1.0/screenDistM)*screenWidthPx);
-        if(radiusWidthPx*2 < Math.min(screenWidthPx, screenHeightPx))
+        if(_googleMap != null)
         {
-            circleView.getLayoutParams().width = 2 * radiusWidthPx;
-            circleView.getLayoutParams().height = 2 * radiusWidthPx;
-        } else
-        {
+            View circleView = findViewById(R.id.set_alarm_radius_circle);
+            LatLng leftLoc = _googleMap.getProjection().getVisibleRegion().farLeft;
+            LatLng rightLoc = _googleMap.getProjection().getVisibleRegion().farRight;
+            LatLng nearLeftLoc = _googleMap.getProjection().getVisibleRegion().nearLeft;
 
-            int diffHeightPx = radiusWidthPx * 2 - screenHeightPx;
+            float results[] = new float[2];
+            Location.distanceBetween(leftLoc.latitude, leftLoc.longitude, rightLoc.latitude, rightLoc.longitude, results);
+            int screenDistM = (int) results[0];
+            Point leftEndPoint = _googleMap.getProjection().toScreenLocation(leftLoc);
+            Point rightEndPoint = _googleMap.getProjection().toScreenLocation(rightLoc);
+            Point nearLeftEndPoint = _googleMap.getProjection().toScreenLocation(nearLeftLoc);
+            int screenWidthPx = Math.abs(leftEndPoint.x - rightEndPoint.x);
+            int screenHeightPx = Math.abs(leftEndPoint.y - nearLeftEndPoint.y);
 
-            int diffWidthPx = radiusWidthPx * 2 - screenWidthPx;
+            int radiusWidthPx = (int) ((radiusM * 1.0 / screenDistM) * screenWidthPx);
+            if (radiusWidthPx * 2 < Math.min(screenWidthPx, screenHeightPx))
+            {
+                circleView.getLayoutParams().width = 2 * radiusWidthPx;
+                circleView.getLayoutParams().height = 2 * radiusWidthPx;
+            } else
+            {
 
-            if(diffHeightPx <= 0) diffHeightPx = 0;
-            if(diffWidthPx <= 0) diffWidthPx = 0;
+                int diffHeightPx = radiusWidthPx * 2 - screenHeightPx;
 
-            circleView.getLayoutParams().width = 2 * radiusWidthPx;
-            circleView.getLayoutParams().height = 2 * radiusWidthPx;
+                int diffWidthPx = radiusWidthPx * 2 - screenWidthPx;
 
-            ((RelativeLayout.LayoutParams)circleView.getLayoutParams()).setMargins((-diffWidthPx / 2), (-diffHeightPx / 2), (-diffWidthPx / 2), (-diffHeightPx / 2));
+                if (diffHeightPx <= 0) diffHeightPx = 0;
+                if (diffWidthPx <= 0) diffWidthPx = 0;
+
+                circleView.getLayoutParams().width = 2 * radiusWidthPx;
+                circleView.getLayoutParams().height = 2 * radiusWidthPx;
+
+                ((RelativeLayout.LayoutParams) circleView.getLayoutParams()).setMargins((-diffWidthPx / 2), (-diffHeightPx / 2), (-diffWidthPx / 2), (-diffHeightPx / 2));
 //            circleView.setRight(diffWidthPx / 2 + screenWidthPx);
 //
 //            circleView.setTop(-diffHeightPx / 2);
 //            circleView.setTop(diffHeightPx / 2 + screenHeightPx);
+            }
+            circleView.requestLayout();
         }
-        circleView.requestLayout();
     }
 
     private CircleOptions getAlarmCircle(GPSAlarm alarm)
