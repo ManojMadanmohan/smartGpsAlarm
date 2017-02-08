@@ -2,6 +2,7 @@ package alarm.manoj.com.smartgpsalarm.services;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
+import alarm.manoj.com.smartgpsalarm.features.AlarmRinger;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
@@ -13,32 +14,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.BitmapFactory;
-import android.graphics.PixelFormat;
 import android.location.Location;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.WindowManager;
-import android.widget.Toast;
-import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 public class AlarmService extends IntentService
 {
@@ -47,6 +33,7 @@ public class AlarmService extends IntentService
     private static final int LOC_FREQ_MILLIS = 5000;
 
     private Handler _handler;
+    private AlarmWarningView _alarmWarningView;
 
     public static Intent getLaunchIntent(Context context, String alarmId)
     {
@@ -129,8 +116,6 @@ public class AlarmService extends IntentService
                                 {
                                     LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
                                     triggerAlarm(alarm.getAlarmId());
-                                    stopForeground(true);
-                                    ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(1010);
                                 }
                             }
                         });
@@ -159,42 +144,9 @@ public class AlarmService extends IntentService
     {
         GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
         final Notification notification = buildStickyNotification(AlarmService.this, alarm);
-        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1010, notification);
+        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(121, notification);
         startForeground(alarm);
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if(alert == null)
-        {
-            // alert is null, using backup
-            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-            // I can't see this ever being null (as always have a default notification)
-            // but just incase
-            if(alert == null)
-            {
-                // alert backup is null, using 2nd backup
-                alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            }
-        }
-        try
-        {
-            MediaPlayer player = new MediaPlayer();
-            player.setDataSource(this, alert);
-            final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
-            if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
-            {
-                player.setAudioStreamType(AudioManager.STREAM_ALARM);
-                player.setLooping(false);
-                player.prepare();
-                player.start();
-            }
-            long[] pattern = {0, 1000, 500};
-            ((Vibrator)getSystemService(VIBRATOR_SERVICE)).vibrate(pattern, 0);
-            showAlarmView();
-        }catch (IOException ioex)
-        {
-            Toast.makeText(this, "IO EXP",Toast.LENGTH_LONG).show();
-        }
+        AlarmRinger.getInstance(this).ringAlarm(alarm);
         AlarmFeature.getInstance(this).unsetAlarm(alarmId);
     }
 
@@ -215,25 +167,9 @@ public class AlarmService extends IntentService
                 .setTicker("dummy ticker")
                 .build();
         notification.flags |= Notification.FLAG_NO_CLEAR;
-        startForeground(1010, buildStickyNotification(this, alarm));
+        startForeground(1337, buildStickyNotification(this, alarm));
     }
 
-    public void showAlarmView()
-    {
-        AlarmWarningView view = new AlarmWarningView(this);
-
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
-
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = 0;
-        params.y = 100;
-        ((WindowManager) getSystemService(WINDOW_SERVICE)).addView(view, params);
-    }
 
     protected Notification newRunningNotification(Context context) {
         Notification notification = newNotification(context);
@@ -260,7 +196,7 @@ public class AlarmService extends IntentService
     public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
     {
         NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
-        compactNotifBuilder.setSmallIcon(R.drawable.powered_by_google_dark);
+        compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
         compactNotifBuilder.setContentTitle("GPS alarm");
         compactNotifBuilder.setContentText("Set for "+alarm.getTitle()+" at "+new SimpleDateFormat("hh:mm a").format(new Date(alarm.getAlarmTimeAbsMillis())));
         compactNotifBuilder.setContentIntent(getContentIntent(context));
