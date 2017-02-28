@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="@drawable/alarm_warning_overlay_bg">
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/White"
+            android:text="GPS Alarm"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="@drawable/alarm_warning_title_bg"/>
+    
+    <TextView
+            android:id="@+id/alarm_warning_title"
+            android:text="This is title"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:paddingTop="8dp"
+            android:textColor="@color/Black"
+            android:paddingBottom="8dp"
+            android:layout_width="wrap_content" 
+            android:layout_height="wrap_content"/>
+
+    <TextView
+            android:id="@+id/alarm_warning_dismiss"
+            android:background="@color/OrangeRed"
+            android:textColor="@color/White"
+            android:text="DISMISS"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    
+</LinearLayout>

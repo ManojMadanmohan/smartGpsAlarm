@@ -6,4 +6,6 @@
     <dimen name="actionbar_height">56dp</dimen>
 
     <dimen name="card_elevation">4dp</dimen>
+
+    <dimen name="padding_alert_title">32dp</dimen>
 </resources>
