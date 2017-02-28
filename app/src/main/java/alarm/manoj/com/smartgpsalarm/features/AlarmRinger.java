@@ -3,9 +3,6 @@ package alarm.manoj.com.smartgpsalarm.features;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.events.GPSAlarmDismissed;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
-import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
@@ -23,7 +20,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
-import static android.content.Context.CARRIER_CONFIG_SERVICE;
 import static android.content.Context.VIBRATOR_SERVICE;
 import static android.content.Context.WINDOW_SERVICE;
 

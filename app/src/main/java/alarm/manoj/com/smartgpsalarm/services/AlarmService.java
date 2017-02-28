@@ -8,7 +8,6 @@ import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.DefaultGeoFenceRequest;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
-import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -37,7 +36,6 @@ public class AlarmService extends IntentService
     private static final int LOC_FREQ_MILLIS = 5000;
 
     private Handler _handler;
-    private AlarmWarningView _alarmWarningView;
 
     public static Intent getLaunchIntent(Context context, String alarmId)
     {
