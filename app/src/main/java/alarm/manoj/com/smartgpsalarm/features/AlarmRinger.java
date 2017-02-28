@@ -31,11 +31,19 @@ public class AlarmRinger
         _context = context;
     }
 
+    public void setContext(Context context)
+    {
+        _context = context;
+    }
+
     public static AlarmRinger getInstance(Context context)
     {
         if(_instance == null)
         {
             _instance = new AlarmRinger(context);
+        } else
+        {
+            _instance.setContext(context);
         }
         return _instance;
     }
