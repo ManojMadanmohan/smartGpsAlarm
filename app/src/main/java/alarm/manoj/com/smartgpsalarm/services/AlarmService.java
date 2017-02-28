@@ -1,6 +1,7 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
 import alarm.manoj.com.smartgpsalarm.R;
+import alarm.manoj.com.smartgpsalarm.events.GPSAlarmDismissed;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.AlarmRinger;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
@@ -22,6 +23,9 @@ import android.support.v4.app.NotificationCompat;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,6 +74,26 @@ public class AlarmService extends IntentService
     {
         super(name);
         _handler = new Handler();
+    }
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onEvent(GPSAlarmDismissed alarmDismissed)
+    {
+        AlarmRinger.getInstance(this).stopAlarm();
     }
 
     @Override
