@@ -1,7 +1,11 @@
 package alarm.manoj.com.smartgpsalarm.features;
 
+import alarm.manoj.com.smartgpsalarm.R;
+import alarm.manoj.com.smartgpsalarm.events.GPSAlarmDismissed;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
@@ -10,8 +14,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -21,7 +29,7 @@ import static android.content.Context.WINDOW_SERVICE;
 
 public class AlarmRinger
 {
-    private AlarmWarningView _alarmWarningView;
+    private View _alarmWarningView;
     private Context _context;
 
     private static AlarmRinger _instance;
@@ -64,8 +72,16 @@ public class AlarmRinger
 
     public void showAlarmView(GPSAlarm alarm)
     {
-        _alarmWarningView = new AlarmWarningView(_context, alarm);
-
+        _alarmWarningView = LayoutInflater.from(_context).inflate(R.layout.alarm_warning_overlay, null);
+        ((TextView)_alarmWarningView.findViewById(R.id.alarm_warning_title)).setText(alarm.getTitle());
+        _alarmWarningView.findViewById(R.id.alarm_warning_dismiss).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                EventBus.getDefault().postSticky(new GPSAlarmDismissed());
+            }
+        });
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
