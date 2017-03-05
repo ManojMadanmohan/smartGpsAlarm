@@ -2,6 +2,7 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
+import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
@@ -66,23 +67,13 @@ public class AlarmRinger
 
     public void showAlarmView(GPSAlarm alarm)
     {
-        _alarmWarningView = LayoutInflater.from(_context).inflate(R.layout.alarm_warning_overlay, null);
-        ((TextView)_alarmWarningView.findViewById(R.id.alarm_warning_title)).setText(alarm.getTitle());
-        _alarmWarningView.findViewById(R.id.alarm_warning_dismiss).setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                stopAlarm();
-            }
-        });
+        _alarmWarningView = new AlarmWarningView(_context, alarm);
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
                 PixelFormat.OPAQUE);
-
         params.gravity = Gravity.CENTER;
         ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).addView(_alarmWarningView, params);
     }
