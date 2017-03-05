@@ -142,8 +142,6 @@ public class AlarmService extends IntentService
     private void triggerAlarm(String alarmId)
     {
         GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
-        final Notification notification = buildStickyNotification(AlarmService.this, alarm);
-        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(121, notification);
         startForeground(alarm);
         AlarmRinger.getInstance(this).ringAlarm(alarm);
         AlarmFeature.getInstance(this).unsetAlarm(alarmId);
