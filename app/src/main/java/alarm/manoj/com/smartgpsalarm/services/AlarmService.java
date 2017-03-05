@@ -114,6 +114,7 @@ public class AlarmService extends IntentService
                                 {
                                     LocationFeature.getInstance(AlarmService.this).removeLocationListener(this);
                                     triggerAlarm(alarm.getAlarmId());
+                                    stopForeground(true);
                                 }
                             }
                         });
