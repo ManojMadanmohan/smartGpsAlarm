@@ -189,9 +189,16 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         if(_instance != null)
         {
             _alarmWarningView = new AlarmWarningView(_instance.getApplicationContext(), alarm);
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            ((RelativeLayout)_instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+            _instance.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ((RelativeLayout)_instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+                }
+            });
             return true;
         } else
         {
@@ -203,7 +210,14 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         if(_instance != null && _alarmWarningView != null)
         {
-            ((RelativeLayout)_instance.findViewById(R.id.content_root)).removeView(_alarmWarningView);
+            _instance.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ((RelativeLayout)_instance.findViewById(R.id.content_root)).removeView(_alarmWarningView);
+                }
+            });
             return true;
         } else
         {
