@@ -75,7 +75,7 @@ public class AlarmRinger
             @Override
             public void onClick(View view)
             {
-                EventBus.getDefault().postSticky(new GPSAlarmDismissed());
+                stopAlarm();
             }
         });
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
