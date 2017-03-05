@@ -8,7 +8,9 @@ import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
+import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import alarm.manoj.com.titleseekbar.TitleSeekbar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Point;
 import android.location.Location;
@@ -16,10 +18,7 @@ import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -43,6 +42,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
+    private static Activity _instance;
+    private static AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
@@ -104,6 +105,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onStart()
     {
         super.onStart();
+        _instance = this;
         _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
         initSeekbarProgress();
         EventBus.getDefault().register(this);
@@ -116,6 +118,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         EventBus.getDefault().unregister(this);
         _radiusStore.write(RADIUS_KEY, String.valueOf(_radiusM));
+        _instance = null;
         super.onStop();
     }
 
@@ -179,6 +182,33 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         _adapter.notifyDataSetChanged();
         resetActiveAlarmsOnMap();
+    }
+
+    public static boolean showAlarmIfVisible(GPSAlarm alarm)
+    {
+        if(_instance != null)
+        {
+            _alarmWarningView = new AlarmWarningView(_instance.getApplicationContext(), alarm);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+            ((RelativeLayout)_instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public static boolean hideAlarmIfVisible()
+    {
+        if(_instance != null && _alarmWarningView != null)
+        {
+            ((RelativeLayout)_instance.findViewById(R.id.content_root)).removeView(_alarmWarningView);
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     private void setActionBar()

@@ -2,6 +2,7 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
+import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
 import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -67,15 +68,18 @@ public class AlarmRinger
 
     public void showAlarmView(GPSAlarm alarm)
     {
-        _alarmWarningView = new AlarmWarningView(_context, alarm);
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                PixelFormat.OPAQUE);
-        params.gravity = Gravity.CENTER;
-        ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).addView(_alarmWarningView, params);
+        if(!GPSAlarmActivity.showAlarmIfVisible(alarm))
+        {
+            _alarmWarningView = new AlarmWarningView(_context, alarm);
+            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
+                    PixelFormat.OPAQUE);
+            params.gravity = Gravity.CENTER;
+            ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).addView(_alarmWarningView, params);
+        }
     }
 
     public void ringAlarm()
@@ -121,7 +125,10 @@ public class AlarmRinger
 
     private void clearWindow()
     {
-        ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).removeView(_alarmWarningView);
+        if(!GPSAlarmActivity.hideAlarmIfVisible())
+        {
+            ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).removeView(_alarmWarningView);
+        }
     }
 
     private void stopVibrating()
