@@ -10,3 +10,4 @@
 .idea/*
 build/*
 app/build/*
+*.apk
