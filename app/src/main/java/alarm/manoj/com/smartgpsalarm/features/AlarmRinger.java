@@ -1,7 +1,6 @@
 package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.R;
-import alarm.manoj.com.smartgpsalarm.events.GPSAlarmDismissed;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
