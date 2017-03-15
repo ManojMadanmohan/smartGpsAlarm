@@ -27,12 +27,14 @@ public class AlarmRinger
 {
     private View _alarmWarningView;
     private Context _context;
+    private MediaPlayer _player;
 
     private static AlarmRinger _instance;
 
     private AlarmRinger(Context context)
     {
         _context = context;
+        _player = new MediaPlayer();
     }
 
     public void setContext(Context context)
@@ -100,16 +102,15 @@ public class AlarmRinger
         }
         try
         {
-            MediaPlayer player = new MediaPlayer();
-            player.setDataSource(_context, alert);
+            _player.setDataSource(_context, alert);
             final AudioManager audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
 
             if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0)
             {
-                player.setAudioStreamType(AudioManager.STREAM_ALARM);
-                player.setLooping(false);
-                player.prepare();
-                player.start();
+                _player.setAudioStreamType(AudioManager.STREAM_ALARM);
+                _player.setLooping(false);
+                _player.prepare();
+                _player.start();
             }
         }catch (IOException ioex)
         {
