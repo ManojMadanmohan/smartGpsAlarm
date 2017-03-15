@@ -63,7 +63,7 @@ public class AlarmRinger
 
     public void stopAlarm()
     {
-        //TODO stop music
+        stopRinging();
         clearWindow();
         stopVibrating();
     }
@@ -122,6 +122,11 @@ public class AlarmRinger
     {
         long[] pattern = {0, 1000, 500};
         ((Vibrator)_context.getSystemService(VIBRATOR_SERVICE)).vibrate(pattern, 0);
+    }
+
+    private void stopRinging()
+    {
+        _player.stop();
     }
 
     private void clearWindow()
