@@ -2,21 +2,22 @@ package alarm.manoj.com.smartgpsalarm.features;
 
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
+import alarm.manoj.com.smartgpsalarm.services.AlarmService;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
-import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.graphics.PixelFormat;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
+import org.json.JSONException;
 
 import java.io.IOException;
 
@@ -59,6 +60,7 @@ public class AlarmRinger
         ringAlarm();
         showAlarmView(alarm);
         vibrate();
+        showAlarmNotification(alarm);
     }
 
     public void stopAlarm()
@@ -66,6 +68,7 @@ public class AlarmRinger
         stopRinging();
         clearWindow();
         stopVibrating();
+        dismissAlarmNotif();
     }
 
     public void showAlarmView(GPSAlarm alarm)
@@ -140,5 +143,25 @@ public class AlarmRinger
     private void stopVibrating()
     {
         ((Vibrator)_context.getSystemService(VIBRATOR_SERVICE)).cancel();
+    }
+
+    private void showAlarmNotification(GPSAlarm alarm)
+    {
+        PendingIntent dismissIntent = PendingIntent.getService(_context, 121,
+                AlarmService.getLaunchIntent(_context, alarm.getAlarmId(), true), 0);
+        PendingIntent activityIntent = PendingIntent.getActivity(_context, 1322,
+                new Intent(_context, GPSAlarmActivity.class), 0);
+        Notification notification = new Notification.Builder(_context)
+                .setContentTitle("GPS alarm")
+                .setContentText(alarm.getTitle())
+                .addAction(R.drawable.common_google_signin_btn_icon_dark, "DISMISS", dismissIntent)
+                .setContentIntent(activityIntent)
+                .build();
+        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(111222, notification);
+    }
+
+    private void dismissAlarmNotif()
+    {
+        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(111222);
     }
 }
