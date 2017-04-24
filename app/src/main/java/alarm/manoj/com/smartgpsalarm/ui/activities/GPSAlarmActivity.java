@@ -39,10 +39,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
-    private static Activity _instance;
+    private static GPSAlarmActivity _instance;
     private static AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
@@ -111,6 +112,24 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         EventBus.getDefault().register(this);
         _adapter.notifyDataSetChanged();
         resetActiveAlarmsOnMap();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        super.onNewIntent(intent);
+        Toast.makeText(this, "new intent called", Toast.LENGTH_SHORT).show();
+        if(intent.hasExtra("warning_alarm"))
+        {
+            try
+            {
+                GPSAlarm alarm = GPSAlarm.fromJson(intent.getStringExtra("warning_alarm"));
+                showAlarm(alarm, this);
+            } catch (JSONException j)
+            {
+
+            }
+        }
     }
 
     @Override
@@ -188,22 +207,27 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         if(_instance != null)
         {
-            _alarmWarningView = new AlarmWarningView(_instance.getApplicationContext(), alarm);
-            final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.addRule(RelativeLayout.CENTER_IN_PARENT);
-            _instance.runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ((RelativeLayout)_instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
-                }
-            });
+            showAlarm(alarm, _instance);
             return true;
         } else
         {
             return false;
         }
+    }
+
+    private static void showAlarm(GPSAlarm alarm, final GPSAlarmActivity instance)
+    {
+        _alarmWarningView = new AlarmWarningView(instance.getApplicationContext(), alarm);
+        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        instance.runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ((RelativeLayout)instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+            }
+        });
     }
 
     public static boolean hideAlarmIfVisible()
