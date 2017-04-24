@@ -128,6 +128,9 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             {
 
             }
+        } else if(intent.hasExtra("warning_alarm_dismiss"))
+        {
+            ((RelativeLayout)findViewById(R.id.content_root)).removeView(_alarmWarningView);
         }
     }
 

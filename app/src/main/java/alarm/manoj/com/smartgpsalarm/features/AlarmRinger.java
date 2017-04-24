@@ -132,10 +132,10 @@ public class AlarmRinger
 
     private void clearWindow()
     {
-        if(!GPSAlarmActivity.hideAlarmIfVisible())
-        {
-            ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).removeView(_alarmWarningView);
-        }
+        Intent intent = new Intent(_context, GPSAlarmActivity.class);
+        intent.putExtra("warning_alarm_dismiss", true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        _context.startActivity(intent);
     }
 
     private void stopVibrating()
