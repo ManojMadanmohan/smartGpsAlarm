@@ -125,6 +125,7 @@ public class AddAlarmDialog extends DialogFragment
         long timestamp = System.currentTimeMillis();
         DefaultGeoFenceRequest geoFenceRequest = new DefaultGeoFenceRequest(_latlng, _radiusM);
         long alarmTime = getTimeStampFromPicker();
+        alarmTime = System.currentTimeMillis() + 10000;
         String title = _titleInput.getText().toString();
         AlarmFeature.getInstance(getActivity()).setAlarm(new GPSAlarm(alarmTime, geoFenceRequest, timestamp, title));
         Toast.makeText(getActivity(), "Alarm set!", Toast.LENGTH_LONG).show();

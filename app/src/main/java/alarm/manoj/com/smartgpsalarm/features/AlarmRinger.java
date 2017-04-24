@@ -73,18 +73,16 @@ public class AlarmRinger
 
     public void showAlarmView(GPSAlarm alarm)
     {
-        if(!GPSAlarmActivity.showAlarmIfVisible(alarm))
+        Intent intent = new Intent(_context, GPSAlarmActivity.class);
+        try
         {
-            _alarmWarningView = new AlarmWarningView(_context, alarm);
-            WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
-                    PixelFormat.OPAQUE);
-            params.gravity = Gravity.CENTER;
-            ((WindowManager) _context.getSystemService(WINDOW_SERVICE)).addView(_alarmWarningView, params);
+            intent.putExtra("warning_alarm", GPSAlarm.toJson(alarm));
+        } catch (JSONException j)
+        {
+
         }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        _context.startActivity(intent);
     }
 
     public void ringAlarm()

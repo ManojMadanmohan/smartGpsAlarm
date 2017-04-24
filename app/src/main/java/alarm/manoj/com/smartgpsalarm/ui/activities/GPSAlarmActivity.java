@@ -44,7 +44,6 @@ import org.json.JSONException;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
-    private static GPSAlarmActivity _instance;
     private static AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
@@ -107,7 +106,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onStart()
     {
         super.onStart();
-        _instance = this;
         _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
         initSeekbarProgress();
         EventBus.getDefault().register(this);
@@ -138,7 +136,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         EventBus.getDefault().unregister(this);
         _radiusStore.write(RADIUS_KEY, String.valueOf(_radiusM));
-        _instance = null;
         super.onStop();
     }
 
@@ -204,19 +201,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         resetActiveAlarmsOnMap();
     }
 
-    public static boolean showAlarmIfVisible(GPSAlarm alarm)
-    {
-        if(_instance != null)
-        {
-            showAlarm(alarm, _instance);
-            return true;
-        } else
-        {
-            return false;
-        }
-    }
-
-    private static void showAlarm(GPSAlarm alarm, final GPSAlarmActivity instance)
+    private void showAlarm(GPSAlarm alarm, final GPSAlarmActivity instance)
     {
         _alarmWarningView = new AlarmWarningView(instance.getApplicationContext(), alarm);
         final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -229,25 +214,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
                 ((RelativeLayout)instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
             }
         });
-    }
-
-    public static boolean hideAlarmIfVisible()
-    {
-        if(_instance != null && _alarmWarningView != null)
-        {
-            _instance.runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ((RelativeLayout)_instance.findViewById(R.id.content_root)).removeView(_alarmWarningView);
-                }
-            });
-            return true;
-        } else
-        {
-            return false;
-        }
     }
 
     private void setActionBar()

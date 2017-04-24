@@ -94,7 +94,7 @@ public class AlarmService extends IntentService
     {
         long alarmTime = alarm.getAlarmTimeAbsMillis();
         final DefaultGeoFenceRequest request = alarm.getGeofenceRequest();
-        if(alarmTime > System.currentTimeMillis())
+        if(BuildConfig.DEBUG || alarmTime > System.currentTimeMillis())
         {
             //Alarm triggered by location
             triggerAlarm(alarm.getAlarmId());
