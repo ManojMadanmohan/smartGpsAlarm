@@ -143,7 +143,7 @@ public class AlarmFeature implements IAlarmFeature
 
     private PendingIntent getPendingIntent(GPSAlarm alarm)
     {
-        Intent intent = AlarmService.getLaunchIntent(_context, alarm.getAlarmId());
+        Intent intent = AlarmService.getLaunchIntent(_context, alarm.getAlarmId(), false);
         PendingIntent pendingIntent = PendingIntent.getService(_context, alarm.hashCode(), intent, 0);
         return pendingIntent;
     }

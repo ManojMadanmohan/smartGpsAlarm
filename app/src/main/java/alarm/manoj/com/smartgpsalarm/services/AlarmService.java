@@ -1,5 +1,6 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
+import alarm.manoj.com.smartgpsalarm.BuildConfig;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.AlarmRinger;
@@ -28,15 +29,17 @@ import java.util.Date;
 public class AlarmService extends IntentService
 {
     public static final String KEY_ALARM = "alarm_id";
+    public static final String KEY_DISMISS = "dismiss";
 
     private static final int LOC_FREQ_MILLIS = 5000;
 
     private Handler _handler;
 
-    public static Intent getLaunchIntent(Context context, String alarmId)
+    public static Intent getLaunchIntent(Context context, String alarmId, boolean dismiss)
     {
         Intent intent = new Intent(context, AlarmService.class);
         intent.putExtra(KEY_ALARM, alarmId);
+        intent.putExtra(KEY_DISMISS, dismiss);
         return intent;
     }
 
@@ -76,7 +79,15 @@ public class AlarmService extends IntentService
         //Runs in background thread
         String alarmId = intent.getStringExtra(KEY_ALARM);
         GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
-        checkAlarm(alarm);
+        boolean dismiss = intent.getBooleanExtra(KEY_DISMISS, false);
+        if(!dismiss)
+        {
+            checkAlarm(alarm);
+        } else
+        {
+            AlarmRinger.getInstance(this).stopAlarm();
+            AlarmFeature.getInstance(this).unsetAlarm(alarmId);
+        }
     }
 
     private void checkAlarm(final GPSAlarm alarm)
