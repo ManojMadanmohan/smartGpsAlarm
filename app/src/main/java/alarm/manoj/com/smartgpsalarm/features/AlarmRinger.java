@@ -101,6 +101,8 @@ public class AlarmRinger
         }
         try
         {
+            Log.d("AlarmRinger", "player code called");
+            _player.reset();
             _player.setDataSource(_context, alert);
             final AudioManager audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
 
