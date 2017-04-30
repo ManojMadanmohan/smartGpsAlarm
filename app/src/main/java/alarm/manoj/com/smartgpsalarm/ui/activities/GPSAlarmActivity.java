@@ -7,7 +7,11 @@ import alarm.manoj.com.smartgpsalarm.features.FileSystem;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
+import alarm.manoj.com.smartgpsalarm.ui.base.BasePresenter;
+import alarm.manoj.com.smartgpsalarm.ui.base.BaseView;
+import alarm.manoj.com.smartgpsalarm.ui.contracts.GPSAlarmHomeContract;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
+import alarm.manoj.com.smartgpsalarm.ui.presenters.GPSAlarmActivityPresenter;
 import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import alarm.manoj.com.titleseekbar.TitleSeekbar;
 import android.content.Intent;
@@ -41,22 +45,20 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 
-public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
+import static android.R.attr.data;
+
+public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback, GPSAlarmHomeContract.GPSAlarmView
 {
     public static final String SHOW_ALARM_RINGING_STATE = "warning_alarm";
     public static final String DISMISS_ALARM_RINGING_STATE = "warning_alarm_dismiss";
+
+    private GPSAlarmHomeContract.GPSAlarmHomePresenter _presenter;
     private static AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
     private TitleSeekbar _seekbar;
-    private FileSystem _radiusStore;
-    private int _radiusM = MINIMUM_RADIUS;
     private static final String ADD_ALARM_TAG = "add_alarm_tag";
-    private static final String RADIUS_KEY = "radius_key";
-    private static final String RADIUS_STORE = "radius";
-    private static final int MINIMUM_RADIUS = 100;
-    private static final int MAXIMUM_RADIUS = 2000;
 
     private static final int PLACE_SEARCH_CODE = 1222;
 
@@ -64,8 +66,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        _presenter = new GPSAlarmActivityPresenter(this, this);
         setContentView(R.layout.activity_gpsalarm);
-        _radiusStore = new FileSystem(this, RADIUS_STORE);
         ((MapFragment)getFragmentManager().findFragmentById(R.id.map_fragment)).getMapAsync(this);
         setActionBar();
         findViewById(R.id.add_alarm).setOnClickListener(new View.OnClickListener()
@@ -73,8 +75,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onClick(View view)
             {
-                LatLng alarmLoc = getMapCenter();
-                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "", _radiusM);
+                LatLng alarmLoc = _presenter.getMapCenter(_googleMap);
+                AddAlarmDialog dialog = AddAlarmDialog.newInstance(alarmLoc, "", _presenter.getRadiusM());
                 dialog.show(getFragmentManager(), ADD_ALARM_TAG);
             }
         });
@@ -82,36 +84,17 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _seekbar = (TitleSeekbar) findViewById(R.id.seekbar);
         _alarmList = (ListView)findViewById(R.id.alarm_list);
         _alarmList.setAdapter(_adapter);
-        _seekbar.setSeekHandler(new TitleSeekbar.TitleSeekbarHandler()
-        {
-            @Override
-            public String getTitle(int progress, int maxProgress)
-            {
-                double ratio = progress*1.0/maxProgress;
-                _radiusM = (int)((MAXIMUM_RADIUS-MINIMUM_RADIUS)*ratio)+MINIMUM_RADIUS;
-                return _radiusM+" metres";
-            }
-
-            @Override
-            public void onSeekbarChangeListener(int progress, int maxProgress)
-            {
-                double ratio = progress*1.0/maxProgress;
-                _radiusM = (int)((MAXIMUM_RADIUS-MINIMUM_RADIUS)*ratio)+MINIMUM_RADIUS;
-                updateSetMarkerRadius(_radiusM);
-            }
-        });
-        _seekbar.setSeekTitle(_radiusM+" metres"); //default
+        _seekbar.setSeekHandler(_presenter.getSeekHandler());
+        _seekbar.setSeekTitle(_presenter.getRadiusM()+" metres"); //default
     }
 
     @Override
     protected void onStart()
     {
         super.onStart();
-        _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
-        initSeekbarProgress();
-        EventBus.getDefault().register(this);
+        _presenter.onStart();
         _adapter.notifyDataSetChanged();
-        resetActiveAlarmsOnMap();
+        _presenter.resetActiveAlarmsOnMap(_googleMap, this);
     }
 
     @Override
@@ -138,8 +121,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onStop()
     {
-        EventBus.getDefault().unregister(this);
-        _radiusStore.write(RADIUS_KEY, String.valueOf(_radiusM));
+        _presenter.onStop();
         super.onStop();
     }
 
@@ -190,19 +172,24 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             if(resultCode == RESULT_OK)
             {
                 Place place = PlaceAutocomplete.getPlace(this, data);
-                zoomToLocation(place.getLatLng());
-                AddAlarmDialog dialog = AddAlarmDialog.newInstance(place.getLatLng(), place.getName().toString(), _radiusM);
-                dialog.show(getFragmentManager(), ADD_ALARM_TAG);
+                _presenter.onPlaceAutocompleteResult(place);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onEvent(GPSAlarmChangeEvent event)
+    @Override
+    public void showAddAlarmDialog(LatLng latng, String name, int radiusM)
+    {
+        AddAlarmDialog dialog = AddAlarmDialog.newInstance(latng, name, radiusM);
+        dialog.show(getFragmentManager(), ADD_ALARM_TAG);
+    }
+
+    @Override
+    public void onGpsAlarmsChanged()
     {
         _adapter.notifyDataSetChanged();
-        resetActiveAlarmsOnMap();
+        _presenter.resetActiveAlarmsOnMap(_googleMap, this);
     }
 
     private void showAlarm(GPSAlarm alarm, final GPSAlarmActivity instance)
@@ -236,25 +223,24 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             @Override
             public void onCameraMove()
             {
-                updateSetMarkerRadius(_radiusM);
+                updateSetMarkerRadius(_presenter.getRadiusM());
             }
         });
         zoomToCurrentLocation();
-        resetActiveAlarmsOnMap();
-        initSeekbarProgress();
+        _presenter.resetActiveAlarmsOnMap(_googleMap, this);
+        _presenter.initSeekbarProgress();
     }
 
-    private void initSeekbarProgress()
+    @Override
+    public void setSeekbarProgress(int progress)
     {
-        _radiusM = Integer.valueOf(_radiusStore.read(RADIUS_KEY, String.valueOf(MINIMUM_RADIUS)));
-        int maxProgress = _seekbar.getSeekbar().getMax();
-        int progress = (int)(((_radiusM - MINIMUM_RADIUS)*1.0/(MAXIMUM_RADIUS-MINIMUM_RADIUS))*maxProgress);
         _seekbar.getSeekbar().setProgress(progress);
     }
 
-    private LatLng getMapCenter()
+    @Override
+    public int getMaxSeekbarProgress()
     {
-        return _googleMap.getCameraPosition().target;
+        return _seekbar.getSeekbar().getMax();
     }
 
     private void zoomToCurrentLocation()
@@ -275,7 +261,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         };
     }
 
-    private void zoomToLocation(LatLng latLng)
+    @Override
+    public void zoomToLocation(LatLng latLng)
     {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng)             // Sets the center of the map to Mountain View
@@ -284,40 +271,22 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    private void resetActiveAlarmsOnMap()
+    @Override
+    public void addActiveAlarmOnUI(GPSAlarm alarm)
     {
-        if(_googleMap != null)
-        {
-            _googleMap.clear();
-            for (GPSAlarm alarm : AlarmFeature.getInstance(this).getAlarmHistory())
-            {
-                if (alarm.isActive())
-                {
-                    _googleMap.addMarker(getAlarmMarker(alarm));
-                    _googleMap.addCircle(getAlarmCircle(alarm));
-                }
-            }
-
-        }
+        _googleMap.addMarker(getAlarmMarker(alarm));
+        _googleMap.addCircle(getAlarmCircle(alarm));
     }
 
-    private void updateSetMarkerRadius(int radiusM)
+    @Override
+    public void updateSetMarkerRadius(int radiusM)
     {
         if(_googleMap != null)
         {
             View circleView = findViewById(R.id.set_alarm_radius_circle);
-            LatLng leftLoc = _googleMap.getProjection().getVisibleRegion().farLeft;
-            LatLng rightLoc = _googleMap.getProjection().getVisibleRegion().farRight;
-            LatLng nearLeftLoc = _googleMap.getProjection().getVisibleRegion().nearLeft;
-
-            float results[] = new float[2];
-            Location.distanceBetween(leftLoc.latitude, leftLoc.longitude, rightLoc.latitude, rightLoc.longitude, results);
-            int screenDistM = (int) results[0];
-            Point leftEndPoint = _googleMap.getProjection().toScreenLocation(leftLoc);
-            Point rightEndPoint = _googleMap.getProjection().toScreenLocation(rightLoc);
-            Point nearLeftEndPoint = _googleMap.getProjection().toScreenLocation(nearLeftLoc);
-            int screenWidthPx = Math.abs(leftEndPoint.x - rightEndPoint.x);
-            int screenHeightPx = Math.abs(leftEndPoint.y - nearLeftEndPoint.y);
+            int screenDistM = (int) _presenter.getScreenDistMetres(_googleMap);
+            int screenWidthPx = _presenter.getScreenWidthPx(_googleMap);
+            int screenHeightPx = _presenter.getScreenHeightPx(_googleMap);
 
             int radiusWidthPx = (int) ((radiusM * 1.0 / screenDistM) * screenWidthPx);
             if (radiusWidthPx * 2 < Math.min(screenWidthPx, screenHeightPx))
@@ -361,4 +330,5 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         return new MarkerOptions().position(alarm.getGeofenceRequest().getLatLng()).title(alarm.getTitle());
     }
+
 }
