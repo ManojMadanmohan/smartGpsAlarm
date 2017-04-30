@@ -14,6 +14,7 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import org.json.JSONException;
