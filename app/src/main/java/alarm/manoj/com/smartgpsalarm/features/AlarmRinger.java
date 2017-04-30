@@ -76,7 +76,7 @@ public class AlarmRinger
         Intent intent = new Intent(_context, GPSAlarmActivity.class);
         try
         {
-            intent.putExtra("warning_alarm", GPSAlarm.toJson(alarm));
+            intent.putExtra(GPSAlarmActivity.SHOW_ALARM_RINGING_STATE, GPSAlarm.toJson(alarm));
         } catch (JSONException j)
         {
 
@@ -133,7 +133,7 @@ public class AlarmRinger
     private void clearWindow()
     {
         Intent intent = new Intent(_context, GPSAlarmActivity.class);
-        intent.putExtra("warning_alarm_dismiss", true);
+        intent.putExtra(GPSAlarmActivity.DISMISS_ALARM_RINGING_STATE, true);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         _context.startActivity(intent);
     }

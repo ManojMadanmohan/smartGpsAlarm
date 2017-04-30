@@ -44,6 +44,8 @@ import org.json.JSONException;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback
 {
+    public static final String SHOW_ALARM_RINGING_STATE = "warning_alarm";
+    public static final String DISMISS_ALARM_RINGING_STATE = "warning_alarm_dismiss";
     private static AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
@@ -118,7 +120,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     {
         super.onNewIntent(intent);
         Toast.makeText(this, "new intent called", Toast.LENGTH_SHORT).show();
-        if(intent.hasExtra("warning_alarm"))
+        if(intent.hasExtra(SHOW_ALARM_RINGING_STATE))
         {
             try
             {
@@ -128,7 +130,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
             {
 
             }
-        } else if(intent.hasExtra("warning_alarm_dismiss"))
+        } else if(intent.hasExtra(DISMISS_ALARM_RINGING_STATE))
         {
             ((RelativeLayout)findViewById(R.id.content_root)).removeView(_alarmWarningView);
         }
