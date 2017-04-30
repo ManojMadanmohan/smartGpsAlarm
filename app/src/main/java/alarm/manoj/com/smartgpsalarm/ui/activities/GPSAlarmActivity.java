@@ -53,7 +53,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     public static final String DISMISS_ALARM_RINGING_STATE = "warning_alarm_dismiss";
 
     private GPSAlarmHomeContract.GPSAlarmHomePresenter _presenter;
-    private static AlarmWarningView _alarmWarningView;
+    private AlarmWarningView _alarmWarningView;
     private GoogleMap _googleMap;
     private AlarmViewAdapter _adapter;
     private ListView _alarmList;
@@ -106,8 +106,8 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         {
             try
             {
-                GPSAlarm alarm = GPSAlarm.fromJson(intent.getStringExtra("warning_alarm"));
-                showAlarm(alarm, this);
+                GPSAlarm alarm = GPSAlarm.fromJson(intent.getStringExtra(SHOW_ALARM_RINGING_STATE));
+                showAlarm(alarm);
             } catch (JSONException j)
             {
 
@@ -192,17 +192,17 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _presenter.resetActiveAlarmsOnMap(_googleMap, this);
     }
 
-    private void showAlarm(GPSAlarm alarm, final GPSAlarmActivity instance)
+    private void showAlarm(GPSAlarm alarm)
     {
-        _alarmWarningView = new AlarmWarningView(instance.getApplicationContext(), alarm);
+        _alarmWarningView = new AlarmWarningView(this, alarm);
         final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        instance.runOnUiThread(new Runnable()
+        runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                ((RelativeLayout)instance.findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+                ((RelativeLayout)findViewById(R.id.content_root)).addView(_alarmWarningView, params);
             }
         });
     }
