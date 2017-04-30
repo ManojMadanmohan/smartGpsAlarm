@@ -150,12 +150,20 @@ public class AlarmService extends IntentService
         }
     }
 
-    private void triggerAlarm(String alarmId)
+    private void triggerAlarm(final String alarmId)
     {
-        GPSAlarm alarm = AlarmFeature.getInstance(this).getAlarm(alarmId);
-        startForeground(alarm);
-        AlarmRinger.getInstance(this).ringAlarm(alarm);
-        AlarmFeature.getInstance(this).unsetAlarm(alarmId);
+        _handler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                GPSAlarm alarm = AlarmFeature.getInstance(AlarmService.this).getAlarm(alarmId);
+                startForeground(alarm);
+                AlarmRinger.getInstance(AlarmService.this).ringAlarm(alarm);
+                AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
+            }
+        });
+
     }
 
     private void startForeground(GPSAlarm alarm)
