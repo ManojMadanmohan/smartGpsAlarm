@@ -10,7 +10,6 @@ import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import alarm.manoj.com.titleseekbar.TitleSeekbar;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Point;
 import android.location.Location;

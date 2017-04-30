@@ -15,14 +15,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Toast;
 import org.json.JSONException;
 
 import java.io.IOException;
 
 import static android.content.Context.VIBRATOR_SERVICE;
-import static android.content.Context.WINDOW_SERVICE;
 
 public class AlarmRinger
 {
