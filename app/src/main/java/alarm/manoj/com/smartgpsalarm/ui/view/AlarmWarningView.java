@@ -13,11 +13,10 @@ import android.widget.TextView;
 public class AlarmWarningView extends RelativeLayout
 {
 
-    public AlarmWarningView(final Context context, GPSAlarm alarm)
+    public AlarmWarningView(final Context context)
     {
         super(context);
         View alarmWarningView = LayoutInflater.from(context).inflate(R.layout.alarm_warning_overlay, null);
-        ((TextView)alarmWarningView.findViewById(R.id.alarm_warning_title)).setText(alarm.getTitle());
         alarmWarningView.findViewById(R.id.alarm_warning_dismiss).setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -27,5 +26,10 @@ public class AlarmWarningView extends RelativeLayout
             }
         });
         addView(alarmWarningView);
+    }
+
+    public void init(GPSAlarm alarm)
+    {
+        ((TextView)findViewById(R.id.alarm_warning_title)).setText(alarm.getTitle());
     }
 }

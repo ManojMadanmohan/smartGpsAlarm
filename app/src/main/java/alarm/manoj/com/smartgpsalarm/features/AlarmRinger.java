@@ -4,6 +4,7 @@ import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.services.AlarmService;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
+import alarm.manoj.com.smartgpsalarm.ui.presenters.GPSAlarmActivityPresenter;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -75,7 +76,7 @@ public class AlarmRinger
         Intent intent = new Intent(_context, GPSAlarmActivity.class);
         try
         {
-            intent.putExtra(GPSAlarmActivity.SHOW_ALARM_RINGING_STATE, GPSAlarm.toJson(alarm));
+            intent.putExtra(GPSAlarmActivityPresenter.SHOW_ALARM_RINGING_STATE, GPSAlarm.toJson(alarm));
         } catch (JSONException j)
         {
 
@@ -134,7 +135,7 @@ public class AlarmRinger
     private void clearWindow()
     {
         Intent intent = new Intent(_context, GPSAlarmActivity.class);
-        intent.putExtra(GPSAlarmActivity.DISMISS_ALARM_RINGING_STATE, true);
+        intent.putExtra(GPSAlarmActivityPresenter.DISMISS_ALARM_RINGING_STATE, true);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         _context.startActivity(intent);
     }

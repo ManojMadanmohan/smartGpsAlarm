@@ -40,6 +40,8 @@ public class GPSAlarmActivityPresenter implements GPSAlarmHomeContract.GPSAlarmH
     private static final int MAXIMUM_RADIUS = 2000;
     private static final String RADIUS_KEY = "radius_key";
     private static final String RADIUS_STORE = "radius";
+    public static final String SHOW_ALARM_RINGING_STATE = "warning_alarm";
+    public static final String DISMISS_ALARM_RINGING_STATE = "warning_alarm_dismiss";
 
     private GPSAlarmHomeContract.GPSAlarmView _view;
     private int _radiusM = MINIMUM_RADIUS;
@@ -54,7 +56,7 @@ public class GPSAlarmActivityPresenter implements GPSAlarmHomeContract.GPSAlarmH
     @Override
     public void onCreate()
     {
-
+        _view.initAlarmWarningView();
     }
 
     @Override
@@ -88,6 +90,25 @@ public class GPSAlarmActivityPresenter implements GPSAlarmHomeContract.GPSAlarmH
     public void onDestroy()
     {
 
+    }
+
+    @Override
+    public void onNewIntent(Intent intent)
+    {
+        if(intent.hasExtra(SHOW_ALARM_RINGING_STATE))
+        {
+            try
+            {
+                GPSAlarm alarm = GPSAlarm.fromJson(intent.getStringExtra(SHOW_ALARM_RINGING_STATE));
+                _view.showAlarmWarningView(alarm);
+            } catch (JSONException j)
+            {
+
+            }
+        } else if(intent.hasExtra(DISMISS_ALARM_RINGING_STATE))
+        {
+            _view.hideAlarmWarningView();
+        }
     }
 
     @Override

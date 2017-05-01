@@ -49,8 +49,6 @@ import static android.R.attr.data;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback, GPSAlarmHomeContract.GPSAlarmView
 {
-    public static final String SHOW_ALARM_RINGING_STATE = "warning_alarm";
-    public static final String DISMISS_ALARM_RINGING_STATE = "warning_alarm_dismiss";
 
     private GPSAlarmHomeContract.GPSAlarmHomePresenter _presenter;
     private AlarmWarningView _alarmWarningView;
@@ -86,6 +84,7 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _alarmList.setAdapter(_adapter);
         _seekbar.setSeekHandler(_presenter.getSeekHandler());
         _seekbar.setSeekTitle(_presenter.getRadiusM()+" metres"); //default
+        _presenter.onCreate();
     }
 
     @Override
@@ -100,22 +99,9 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onNewIntent(Intent intent)
     {
-        super.onNewIntent(intent);
         Toast.makeText(this, "new intent called", Toast.LENGTH_SHORT).show();
-        if(intent.hasExtra(SHOW_ALARM_RINGING_STATE))
-        {
-            try
-            {
-                GPSAlarm alarm = GPSAlarm.fromJson(intent.getStringExtra(SHOW_ALARM_RINGING_STATE));
-                showAlarm(alarm);
-            } catch (JSONException j)
-            {
-
-            }
-        } else if(intent.hasExtra(DISMISS_ALARM_RINGING_STATE))
-        {
-            ((RelativeLayout)findViewById(R.id.content_root)).removeView(_alarmWarningView);
-        }
+        super.onNewIntent(intent);
+        _presenter.onNewIntent(intent);
     }
 
     @Override
@@ -192,20 +178,30 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
         _presenter.resetActiveAlarmsOnMap(_googleMap, this);
     }
 
-    private void showAlarm(GPSAlarm alarm)
+    @Override
+    public void initAlarmWarningView()
     {
-        _alarmWarningView = new AlarmWarningView(this, alarm);
+        _alarmWarningView = new AlarmWarningView(this);
         final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                ((RelativeLayout)findViewById(R.id.content_root)).addView(_alarmWarningView, params);
-            }
-        });
+        ((RelativeLayout)findViewById(R.id.content_root)).addView(_alarmWarningView, params);
+        _alarmWarningView.setVisibility(View.GONE);
     }
+
+    @Override
+    public void showAlarmWarningView(GPSAlarm alarm)
+    {
+        _alarmWarningView.init(alarm);
+        _alarmWarningView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideAlarmWarningView()
+    {
+        _alarmWarningView.setVisibility(View.GONE);
+    }
+
+
 
     private void setActionBar()
     {
