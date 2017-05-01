@@ -1,21 +1,15 @@
 package alarm.manoj.com.smartgpsalarm.ui.activities;
 
 import alarm.manoj.com.smartgpsalarm.R;
-import alarm.manoj.com.smartgpsalarm.events.GPSAlarmChangeEvent;
-import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
-import alarm.manoj.com.smartgpsalarm.features.FileSystem;
 import alarm.manoj.com.smartgpsalarm.features.LocationFeature;
 import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.adapters.AlarmViewAdapter;
-import alarm.manoj.com.smartgpsalarm.ui.base.BasePresenter;
-import alarm.manoj.com.smartgpsalarm.ui.base.BaseView;
 import alarm.manoj.com.smartgpsalarm.ui.contracts.GPSAlarmHomeContract;
 import alarm.manoj.com.smartgpsalarm.ui.dialogs.AddAlarmDialog;
 import alarm.manoj.com.smartgpsalarm.ui.presenters.GPSAlarmActivityPresenter;
 import alarm.manoj.com.smartgpsalarm.ui.view.AlarmWarningView;
 import alarm.manoj.com.titleseekbar.TitleSeekbar;
 import android.content.Intent;
-import android.graphics.Point;
 import android.location.Location;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
@@ -31,7 +25,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -40,12 +33,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
-
-import static android.R.attr.data;
 
 public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCallback, GPSAlarmHomeContract.GPSAlarmView
 {
