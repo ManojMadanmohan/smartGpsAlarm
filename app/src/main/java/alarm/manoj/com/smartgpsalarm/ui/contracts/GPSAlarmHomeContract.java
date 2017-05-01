@@ -6,6 +6,7 @@ import alarm.manoj.com.smartgpsalarm.ui.base.BaseView;
 import alarm.manoj.com.titleseekbar.TitleSeekbar;
 
 import android.content.Context;
+import android.content.Intent;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.location.places.Place;
@@ -27,6 +28,12 @@ public class GPSAlarmHomeContract
         public void addActiveAlarmOnUI(GPSAlarm alarm);
 
         public void updateSetMarkerRadius(int radiusM);
+
+        public void initAlarmWarningView();
+
+        public void showAlarmWarningView(GPSAlarm alarm);
+
+        public void hideAlarmWarningView();
     }
 
     public interface GPSAlarmHomePresenter extends BasePresenter
@@ -48,5 +55,7 @@ public class GPSAlarmHomeContract
         public void onPlaceAutocompleteResult(Place place);
 
         public void initSeekbarProgress();
+
+        public void onNewIntent(Intent intent);
     }
 }
