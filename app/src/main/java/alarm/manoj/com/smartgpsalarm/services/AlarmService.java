@@ -1,6 +1,5 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
-import alarm.manoj.com.smartgpsalarm.BuildConfig;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.AlarmRinger;
@@ -10,21 +9,16 @@ import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import android.support.annotation.MainThread;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class AlarmService extends IntentService
 {
@@ -97,7 +91,7 @@ public class AlarmService extends IntentService
         if(alarmTime > System.currentTimeMillis())
         {
             //Alarm triggered by location
-            triggerAlarm(alarm.getAlarmId());
+            triggerAlarmOnUIThread(alarm.getAlarmId());
         } else
         {
             //still time to go, check location
@@ -105,7 +99,7 @@ public class AlarmService extends IntentService
             if(currentLoc == null || inGeofence(currentLoc, request))
             {
                 //Loc not avl or loc in geofence already, trigger alarm
-                triggerAlarm(alarm.getAlarmId());
+                triggerAlarmOnUIThread(alarm.getAlarmId());
             } else
             {
                 _handler.post(new Runnable()
@@ -113,8 +107,6 @@ public class AlarmService extends IntentService
                     @Override
                     public void run()
                     {
-                        final Notification notification = buildStickyNotification(AlarmService.this, alarm);
-                        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1010, notification);
                         startForeground(alarm);
                         LocationFeature.getInstance(AlarmService.this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                         {
@@ -150,81 +142,47 @@ public class AlarmService extends IntentService
         }
     }
 
-    private void triggerAlarm(final String alarmId)
+    private void triggerAlarmOnUIThread(final String alarmId)
     {
         _handler.post(new Runnable()
         {
             @Override
             public void run()
             {
-                GPSAlarm alarm = AlarmFeature.getInstance(AlarmService.this).getAlarm(alarmId);
-                startForeground(alarm);
-                AlarmRinger.getInstance(AlarmService.this).ringAlarm(alarm);
-                AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
+                triggerAlarm(alarmId);
             }
         });
 
     }
 
+    @MainThread
+    private void triggerAlarm(String alarmId)
+    {
+        GPSAlarm alarm = AlarmFeature.getInstance(AlarmService.this).getAlarm(alarmId);
+        AlarmRinger.getInstance(AlarmService.this).ringAlarm(alarm);
+        AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
+    }
+
     private void startForeground(GPSAlarm alarm)
     {
-        String alarmTitle = alarm.getTitle();
-        Intent intent = new Intent(this, GPSAlarmActivity.class);
-        Notification notification = new Notification.Builder(this)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_black_24dp))
-                .setWhen(System.currentTimeMillis())
-                .setAutoCancel(false)
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_play_arrow_black_24dp)
-                .setContentTitle("Smart GPS Alarm")
-                .setContentText("Actively checkin location for "+alarmTitle)
-                .setContentIntent(PendingIntent.getActivity(this, 1337, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setPriority(Notification.PRIORITY_MAX)
-                .setTicker("dummy ticker")
-                .build();
-        notification.flags |= Notification.FLAG_NO_CLEAR;
         startForeground(1337, buildStickyNotification(this, alarm));
-    }
-
-
-    protected Notification newRunningNotification(Context context) {
-        Notification notification = newNotification(context);
-
-        notification.flags = Notification.FLAG_ONGOING_EVENT
-                | Notification.FLAG_NO_CLEAR;
-        notification.when = 0;
-
-        notification.contentIntent = PendingIntent.getActivity(context,
-                11,
-                new Intent(context, GPSAlarmActivity.class), 0);
-
-        return notification;
-    }
-
-    protected Notification newNotification(Context context) {
-        Notification notification = new Notification();
-        notification.icon = R.drawable.ic_stop_black_24dp;
-        notification.when = System.currentTimeMillis();
-
-        return notification;
     }
 
     public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
     {
-        NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
-        compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
-        compactNotifBuilder.setContentTitle("GPS alarm");
-        compactNotifBuilder.setContentText("Set for "+alarm.getTitle()+" at "+new SimpleDateFormat("hh:mm a").format(new Date(alarm.getAlarmTimeAbsMillis())));
-        compactNotifBuilder.setContentIntent(getContentIntent(context));
-        compactNotifBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-        compactNotifBuilder.setOngoing(true);
-        compactNotifBuilder.setAutoCancel(false);
-        return compactNotifBuilder.build();
+        return new Notification.Builder(context)
+                .setSmallIcon(R.drawable.ic_gps_fixed_black_24dp)
+                .setContentTitle("gps alarm")
+                .setContentText(alarm.getTitle())
+                .setContentIntent(getContentIntent(context))
+                .setPriority(Notification.PRIORITY_MAX)
+                .setOngoing(true)
+                .build();
     }
 
     private static PendingIntent getContentIntent(Context context)
     {
-        Intent intent = new Intent(context, GPSAlarmActivity.class);
-        return PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(context, 1322,
+                new Intent(context, GPSAlarmActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
