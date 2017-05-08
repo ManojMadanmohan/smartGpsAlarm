@@ -209,7 +209,7 @@ public class AlarmService extends IntentService
 
     private static PendingIntent getContentIntent(Context context)
     {
-        Intent intent = new Intent(context, GPSAlarmActivity.class);
-        return PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(context, 1322,
+                new Intent(context, GPSAlarmActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
