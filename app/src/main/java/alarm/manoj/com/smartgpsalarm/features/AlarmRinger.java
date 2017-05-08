@@ -26,6 +26,10 @@ import static android.content.Context.VIBRATOR_SERVICE;
 
 public class AlarmRinger
 {
+    private static final String ALARM_NOTIFICATION_TITLE = "GPS Alarm!!";
+    private static final String ALARM_NOTIFICATION_DISMISS_TEXT = "DISMISS";
+    public static final int NOTIFICATION_ID = 111222;
+
     private View _alarmWarningView;
     private Context _context;
     private MediaPlayer _player;
@@ -151,17 +155,23 @@ public class AlarmRinger
                 AlarmService.getLaunchIntent(_context, alarm.getAlarmId(), true), 0);
         PendingIntent activityIntent = PendingIntent.getActivity(_context, 1322,
                 new Intent(_context, GPSAlarmActivity.class), 0);
-        Notification notification = new Notification.Builder(_context)
-                .setContentTitle("GPS alarm")
+        Notification notification = getAlarmNotification(alarm, dismissIntent, activityIntent);
+        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notification);
+    }
+
+    private Notification getAlarmNotification(GPSAlarm alarm, PendingIntent dismissIntent, PendingIntent activityIntent)
+    {
+        return new Notification.Builder(_context)
+                .setSmallIcon(R.drawable.ic_gps_fixed_black_24dp)
+                .setContentTitle(ALARM_NOTIFICATION_TITLE)
                 .setContentText(alarm.getTitle())
-                .addAction(R.drawable.common_google_signin_btn_icon_dark, "DISMISS", dismissIntent)
+                .addAction(R.drawable.ic_close_black_24dp, ALARM_NOTIFICATION_DISMISS_TEXT, dismissIntent)
                 .setContentIntent(activityIntent)
                 .build();
-        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(111222, notification);
     }
 
     private void dismissAlarmNotif()
     {
-        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(111222);
+        ((NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
     }
 }
