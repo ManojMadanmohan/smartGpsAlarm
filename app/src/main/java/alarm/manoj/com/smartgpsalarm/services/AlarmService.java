@@ -196,15 +196,14 @@ public class AlarmService extends IntentService
 
     public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
     {
-        NotificationCompat.Builder compactNotifBuilder = new NotificationCompat.Builder(context);
-        compactNotifBuilder.setSmallIcon(R.drawable.conductor_logo);
-        compactNotifBuilder.setContentTitle("GPS alarm");
-        compactNotifBuilder.setContentText("Set for "+alarm.getTitle()+" at "+new SimpleDateFormat("hh:mm a").format(new Date(alarm.getAlarmTimeAbsMillis())));
-        compactNotifBuilder.setContentIntent(getContentIntent(context));
-        compactNotifBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
-        compactNotifBuilder.setOngoing(true);
-        compactNotifBuilder.setAutoCancel(false);
-        return compactNotifBuilder.build();
+        return new Notification.Builder(context)
+                .setSmallIcon(R.drawable.ic_gps_fixed_black_24dp)
+                .setContentTitle("gps alarm")
+                .setContentText(alarm.getTitle())
+                .setContentIntent(getContentIntent(context))
+                .setPriority(Notification.PRIORITY_MAX)
+                .setOngoing(true)
+                .build();
     }
 
     private static PendingIntent getContentIntent(Context context)
