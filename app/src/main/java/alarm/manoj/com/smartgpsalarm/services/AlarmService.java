@@ -113,8 +113,6 @@ public class AlarmService extends IntentService
                     @Override
                     public void run()
                     {
-                        final Notification notification = buildStickyNotification(AlarmService.this, alarm);
-                        ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(1010, notification);
                         startForeground(alarm);
                         LocationFeature.getInstance(AlarmService.this).addLocationListener(LOC_FREQ_MILLIS, LocationRequest.PRIORITY_HIGH_ACCURACY, new LocationListener()
                         {
@@ -170,19 +168,6 @@ public class AlarmService extends IntentService
     {
         String alarmTitle = alarm.getTitle();
         Intent intent = new Intent(this, GPSAlarmActivity.class);
-        Notification notification = new Notification.Builder(this)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_black_24dp))
-                .setWhen(System.currentTimeMillis())
-                .setAutoCancel(false)
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_play_arrow_black_24dp)
-                .setContentTitle("Smart GPS Alarm")
-                .setContentText("Actively checkin location for "+alarmTitle)
-                .setContentIntent(PendingIntent.getActivity(this, 1337, intent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setPriority(Notification.PRIORITY_MAX)
-                .setTicker("dummy ticker")
-                .build();
-        notification.flags |= Notification.FLAG_NO_CLEAR;
         startForeground(1337, buildStickyNotification(this, alarm));
     }
 
