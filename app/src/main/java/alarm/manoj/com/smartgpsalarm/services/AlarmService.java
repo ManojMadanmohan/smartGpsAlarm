@@ -1,6 +1,5 @@
 package alarm.manoj.com.smartgpsalarm.services;
 
-import alarm.manoj.com.smartgpsalarm.BuildConfig;
 import alarm.manoj.com.smartgpsalarm.R;
 import alarm.manoj.com.smartgpsalarm.features.AlarmFeature;
 import alarm.manoj.com.smartgpsalarm.features.AlarmRinger;
@@ -10,21 +9,16 @@ import alarm.manoj.com.smartgpsalarm.models.GPSAlarm;
 import alarm.manoj.com.smartgpsalarm.ui.activities.GPSAlarmActivity;
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import android.support.annotation.MainThread;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class AlarmService extends IntentService
 {
