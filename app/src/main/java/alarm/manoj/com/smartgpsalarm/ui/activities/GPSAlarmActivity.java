@@ -87,7 +87,6 @@ public class GPSAlarmActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onNewIntent(Intent intent)
     {
-        Toast.makeText(this, "new intent called", Toast.LENGTH_SHORT).show();
         super.onNewIntent(intent);
         _presenter.onNewIntent(intent);
     }
