@@ -169,27 +169,9 @@ public class AlarmService extends IntentService
         AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
     }
 
-
-    protected Notification newRunningNotification(Context context) {
-        Notification notification = newNotification(context);
-
-        notification.flags = Notification.FLAG_ONGOING_EVENT
-                | Notification.FLAG_NO_CLEAR;
-        notification.when = 0;
-
-        notification.contentIntent = PendingIntent.getActivity(context,
-                11,
-                new Intent(context, GPSAlarmActivity.class), 0);
-
-        return notification;
-    }
-
-    protected Notification newNotification(Context context) {
-        Notification notification = new Notification();
-        notification.icon = R.drawable.ic_stop_black_24dp;
-        notification.when = System.currentTimeMillis();
-
-        return notification;
+    private void startForeground(GPSAlarm alarm)
+    {
+        startForeground(1337, buildStickyNotification(this, alarm));
     }
 
     public static Notification buildStickyNotification(Context context, GPSAlarm alarm)
