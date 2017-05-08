@@ -97,7 +97,7 @@ public class AlarmService extends IntentService
         if(alarmTime > System.currentTimeMillis())
         {
             //Alarm triggered by location
-            triggerAlarm(alarm.getAlarmId());
+            triggerAlarmOnUIThread(alarm.getAlarmId());
         } else
         {
             //still time to go, check location
@@ -105,7 +105,7 @@ public class AlarmService extends IntentService
             if(currentLoc == null || inGeofence(currentLoc, request))
             {
                 //Loc not avl or loc in geofence already, trigger alarm
-                triggerAlarm(alarm.getAlarmId());
+                triggerAlarmOnUIThread(alarm.getAlarmId());
             } else
             {
                 _handler.post(new Runnable()
@@ -148,27 +148,25 @@ public class AlarmService extends IntentService
         }
     }
 
-    private void triggerAlarm(final String alarmId)
+    private void triggerAlarmOnUIThread(final String alarmId)
     {
         _handler.post(new Runnable()
         {
             @Override
             public void run()
             {
-                GPSAlarm alarm = AlarmFeature.getInstance(AlarmService.this).getAlarm(alarmId);
-                startForeground(alarm);
-                AlarmRinger.getInstance(AlarmService.this).ringAlarm(alarm);
-                AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
+                triggerAlarm(alarmId);
             }
         });
 
     }
 
-    private void startForeground(GPSAlarm alarm)
+    @MainThread
+    private void triggerAlarm(String alarmId)
     {
-        String alarmTitle = alarm.getTitle();
-        Intent intent = new Intent(this, GPSAlarmActivity.class);
-        startForeground(1337, buildStickyNotification(this, alarm));
+        GPSAlarm alarm = AlarmFeature.getInstance(AlarmService.this).getAlarm(alarmId);
+        AlarmRinger.getInstance(AlarmService.this).ringAlarm(alarm);
+        AlarmFeature.getInstance(AlarmService.this).unsetAlarm(alarmId);
     }
 
 
